@@ -140,9 +140,10 @@ export default class BleModule{
         this.nofityServiceUUID = [];
         this.nofityCharacteristicUUID = [];  
         for(let item of peripheralInfo.characteristics){      
-            item.service = this.fullUUID(item.service);
-            item.characteristic = this.fullUUID(item.characteristic);
+
             if(Platform.OS == 'android'){  
+                item.service = this.fullUUID(item.service);
+                item.characteristic = this.fullUUID(item.characteristic);
                 if(item.properties.Notify == 'Notify'){
                     this.nofityServiceUUID.push(item.service);
                     this.nofityCharacteristicUUID.push(item.characteristic);
@@ -243,6 +244,9 @@ export default class BleModule{
                     resolve();
                 })
                 .catch((error) => {
+                    console.log("nihaommamamama_____")
+                    console.log(this.nofityServiceUUID[index]);
+                    console.log(this.nofityCharacteristicUUID[index]);
                     console.log('Notification error:',error);
                     reject(error);
                 });
