@@ -52,13 +52,15 @@
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Allow lnmstry to access your microphone</string>
 	<key>NSMotionUsageDescription</key>
-	<string>Allow lnmstry to access your device's accelerometer</string>
+	<string>Allow lnmstry to access your device&apos;s accelerometer</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Give lnmstry periences permission to save photos</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Give lnmstry periences permission to access your photos</string>
 	<key>NSRemindersUsageDescription</key>
 	<string>Allow lnmstry to access your reminders</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Allow lnmstry to use bluetooth to retrieve data from gadget.</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>AntDesign.ttf</string>

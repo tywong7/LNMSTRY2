@@ -58,15 +58,15 @@ export default class NotifService {
 
       /* iOS only properties */
       alertAction: 'view', // (optional) default: view
-      category: null, // (optional) default: null
-      userInfo: null, // (optional) default: null (object containing additional notification data)
+      category: '', // (optional) default: null
+      userInfo: {}, // (optional) default: null (object containing additional notification data)
 
       /* iOS and Android properties */
       title: "Notification: Moderate Expousre", // (optional)
       message: "Moderate light exposure is detected. == (70 lux, 50dB)", // (required)
       playSound: true, // (optional) default: true
       soundName: 'default', // (optional) Sound to play when the notification is shown. Value of 'default' plays the default sound. It can be set to a custom sound such as 'android.resource://com.xyz/raw/my_sound'. It will look for the 'my_sound' audio file in 'res/raw' directory and play it. default: 'default' (default sound is played)
-      number: '10', // (optional) Valid 32 bit integer specified as string. default: none (Cannot be zero)
+      number: 10, // (optional) Valid 32 bit integer specified as string. default: none (Cannot be zero)
       actions: '["Yes", "No"]',  // (Android only) See the doc for notification actions to know more
     });
   }
@@ -106,8 +106,8 @@ export default class NotifService {
 
       /* iOS only properties */
       alertAction: 'view', // (optional) default: view
-      category: null, // (optional) default: null
-      userInfo: null, // (optional) default: null (object containing additional notification data)
+      category: '', // (optional) default: null
+      userInfo: {}, // (optional) default: null (object containing additional notification data)
 
       /* iOS and Android properties */
       title: bigText, // (optional)
