@@ -258,7 +258,7 @@ class Product extends React.Component {
   render() {
     const { navigation, product, horizontal, full, style, priceColor, imageStyle } = this.props;
 
-    if (!this.state.render&&Platform.OS === 'androids'){
+    if (!this.state.render&&Platform.OS === 'android'){
       this.setModalVisible(product.latitude,product.longitude);
     }
       
