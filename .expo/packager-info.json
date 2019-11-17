@@ -1,0 +1,9 @@
+{
+  "expoServerNgrokUrl": "https://yn-grj.winryrb36.lnms.exp.direct",
+  "packagerNgrokUrl": "https://packager.yn-grj.winryrb36.lnms.exp.direct",
+  "ngrokPid": 10056,
+  "devToolsPort": 19002,
+  "expoServerPort": 19000,
+  "packagerPort": 19001,
+  "packagerPid": 12232
+}
