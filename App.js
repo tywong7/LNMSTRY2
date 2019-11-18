@@ -11,15 +11,15 @@
 
 */
 
-import React from 'react';
+import React,{useEffect} from 'react';
 import { Platform, StatusBar, Image } from 'react-native';
 
 import { Asset } from 'expo-asset';
 import { Block, GalioProvider } from 'galio-framework';
 
 import AppContainer from './navigation/Screens';
-import { Images, products, materialTheme } from './constants/';
-
+import { Images, materialTheme } from './constants/';
+import RNBootSplash from "react-native-bootsplash";
 // cache app images
 const assetImages = [
   Images.Pro,
@@ -36,44 +36,44 @@ function cacheImages(images) {
     if (typeof image === 'string') {
       return Image.prefetch(image);
     } else {
-      return 0;//Asset.fromModule(image).downloadAsync();
+      Asset.fromModule(image).downloadAsync();
     }
   });
 }
+function big(){
+  let init=async () => {
+    return Promise.all([
+      ...cacheImages(assetImages),
+    ]);
+  };
 
+
+    init().finally(() => {
+      // without fadeout: RNBootSplash.hide()
+      console.log("done done");
+      RNBootSplash.hide({ duration: 250 });
+    });
+
+    
+  return (
+    <GalioProvider theme={materialTheme}>
+      <Block flex>
+        {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
+        <AppContainer />
+      </Block>
+    </GalioProvider>
+  );
+}
 export default class App extends React.Component {
   state = {
     isLoadingComplete: true,
   };
 
   render() {
-    if (!this.state.isLoadingComplete && !this.props.skipLoadingScreen) {
-      return (
-        console.log("fuck you"),
-        <AppLoading
-          startAsync={this._loadResourcesAsync}
-          onError={this._handleLoadingError}
-          onFinish={this._handleFinishLoading}
-        />
-      );
-    } else {
-      
-      return (
-        <GalioProvider theme={materialTheme}>
-          <Block flex>
-            {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
-            <AppContainer />
-          </Block>
-        </GalioProvider>
-      );
-    }
+    return big();
   }
 
-  _loadResourcesAsync = async () => {
-    return Promise.all([
-      ...cacheImages(assetImages),
-    ]);
-  };
+  
 
   _handleLoadingError = error => {
     // In this case, you might want to report the error to your error

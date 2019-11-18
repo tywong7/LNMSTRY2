@@ -46,4 +46,6 @@ target 'lnmstry' do
 
   pod 'RNCAsyncStorage', :path => '../node_modules/@react-native-community/async-storage'
 
+  pod 'RNBootSplash', :path => '../node_modules/react-native-bootsplash'
+
 end
