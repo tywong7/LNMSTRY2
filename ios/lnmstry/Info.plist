@@ -52,7 +52,7 @@
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Allow lnmstry to access your microphone</string>
 	<key>NSMotionUsageDescription</key>
-	<string>Allow lnmstry to access your device&apos;s accelerometer</string>
+	<string>Allow lnmstry to access your device's accelerometer</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Give lnmstry periences permission to save photos</string>
 	<key>NSPhotoLibraryUsageDescription</key>
