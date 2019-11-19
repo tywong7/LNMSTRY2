@@ -1,6 +1,5 @@
 
 const atDelta=0.002,longDelta=0.002,addr='sdfas';
-import Geocoder from 'react-native-geocoder-reborn';
 
 
 state = {
@@ -17,13 +16,12 @@ function genData (tit,type,lat,lon,latDel,longDel,date){
 
 
   return  {
-    title: tit,
-    latitude: lat,
-    longitude:lon,
+    maxlight: tit,
+    lat: lat,
+    long:lon,
     latitudeDelta: latDel,
     longitudeDelta: longDel,
-    price: date,
-    location: '123'
+    date: date,
   };
   
 }

@@ -247,7 +247,6 @@ class Product extends React.Component {
               best=res[i]['formattedAddress'];
         }
       }
-      console.log('ok');
       this.setState({render:true});
       this.setState({element:best});
   })
@@ -259,7 +258,7 @@ class Product extends React.Component {
     const { navigation, product, horizontal, full, style, priceColor, imageStyle } = this.props;
 
     if (!this.state.render&&Platform.OS === 'android'){
-      this.setModalVisible(product.latitude,product.longitude);
+      this.setModalVisible(product.lat,product.long);
     }
       
     return (
@@ -271,23 +270,24 @@ class Product extends React.Component {
               customMapStyle={mapStyle}
               style={styles.fullImage}
               initialRegion={{
-                latitude: product.latitude,
-                longitude: product.longitude,
-                latitudeDelta: product.latitudeDelta,
-                longitudeDelta: product.longitudeDelta,
+                latitude: product.lat,
+                longitude: product.long,
+                latitudeDelta: 0.002,
+                longitudeDelta: 0.002,
               }}
             >
-              <Marker coordinate={{ latitude: product.latitude, longitude: product.longitude }} />
+              <Marker coordinate={{ latitude: product.lat, longitude: product.long }} />
             </MapView>
             
 
           </Block>
 
-          <TouchableWithoutFeedback onPress={() => this.setModalVisible(product.latitude,product.longitude)}>
+          <TouchableWithoutFeedback onPress={() => this.setModalVisible(product.lat,product.long)}>
           
         <Block flex space="between" style={styles.productDescription}>
-            <Text size={14} style={styles.productTitle}>{product.title}</Text>
-            <Text size={12} style={{ fontWeight: 'bold'}} color={priceColor}>{product.price}</Text>
+            <Text size={14} style={styles.productTitle}>Peak: {product.maxlight}lux {product.maxnoise}dB      Avearge: {product.avglight}lux {product.avgnoise}dB</Text>
+            <Text size={12} style={{ fontWeight: 'bold'}} color={priceColor}>Time: {product.date}</Text>
+            <Text size={12} style={{ fontWeight: 'bold'}} color={priceColor}>Temperature: {product.temperature}°C      Humidity: {product.humidity}%</Text>
             <Text size={12} style={{ fontWeight: 'bold'}} color={priceColor}>
               {
                 this.state.element

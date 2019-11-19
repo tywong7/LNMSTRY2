@@ -6,7 +6,8 @@ import materialTheme from '../constants/Theme';
 import { Alert } from 'react-native';
 import NotifService from '../components/NotifService';
 import appConfig from '../app.json';
-
+import AsyncStorage from '@react-native-community/async-storage';
+import Home from '../screens/Home';
 export default class Settings extends React.Component{
   state = {};
 
@@ -20,7 +21,7 @@ export default class Settings extends React.Component{
     console.log(notif);
     Alert.alert(notif.title, notif.message);
   }
-
+  
   toggleSwitch = switchNumber => {this.setState({ [switchNumber]: !this.state[switchNumber] }); console.log(this.state[switchNumber]);
   if (!this.state[switchNumber]){
     this.notif.scheduleNotif(1,0);this.notif.scheduleNotif(6,1);
@@ -58,19 +59,59 @@ export default class Settings extends React.Component{
           </Block>
         );
       case 'button':
+        var title=''
+        if (item.id=='clear_1')
+          title='Clear Instant Meausre Data';
+        else if (item.id=='clear_2')
+          title='Clear Auto Meausre Data';
+        else title='Clear My Sleep History';
+
         return (
           <Block style={styles.rows}>
             <TouchableOpacity onPress={() => {
+
               Alert.alert(
-                "Clear Data",
-                'Are you sure?',
+                title,
+                'Are you sure to '+title+'?',
                 [
                   {
                     text: 'Cancel',
                     onPress: () => console.log('Cancel Pressed'),
                     style: 'cancel',
                   },
-                  { text: 'OK', onPress: () => console.log('OK Pressed') },
+                  { text: 'OK', onPress: () => {
+                    if (item.id=='clear_1')
+                      try {
+                        AsyncStorage.removeItem("InsData").then( (data)=>{
+                          console.log("done",data);
+  
+                          Alert.alert('Done','Cleared Instant Measure Data ');
+                        });
+                      }
+                      catch (e){
+                        console.log("Clear InsData Error",e);
+                      }
+                  else if (item.id=='clear_2')
+                  try {
+                    AsyncStorage.removeItem("AutoData").then( (data)=>{
+                      console.log("done",data);
+                      Alert.alert('Done','Clear Auto Measure Data ');
+                    });
+                  }
+                  catch (e){
+                    console.log("Clear Auto Error",e);
+                  }
+                  else
+                  try {
+                    AsyncStorage.removeItem("SleepData").then( (data)=>{
+                      console.log("done",data);
+                      Alert.alert('Done','Clear My Sleep Record');
+                    });
+                  }
+                  catch (e){
+                    console.log("Clear Sleep Error",e);
+                  } 
+                  } },
                 ],
                 { cancelable: false }
               );
@@ -93,8 +134,9 @@ export default class Settings extends React.Component{
     ];
 
     const payment = [
-      { title: "Clear My Log", id: "clear_log", type: "button" },
-      { title: "Clear My Sleep Record", id: "clear_record", type: "button" },
+      { title: "Clear Instant Measure Log", id: "clear_1", type: "button" },
+      { title: "Clear Auto Measure Record", id: "clear_2", type: "button" },
+      { title: "Clear My Sleep Record", id: "clear_3", type: "button" },
     ];
 
 

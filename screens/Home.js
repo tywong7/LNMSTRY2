@@ -1,153 +1,157 @@
 import React from 'react';
-import { StyleSheet, Dimensions, ScrollView, View } from 'react-native';
-import { Button, Block, Text, Input, theme } from 'galio-framework';
-
-import { Icon, Product } from '../components/';
-import * as Location from 'expo-location';
+import { StyleSheet, Dimensions, ScrollView, View, Button, } from 'react-native';
+import { Block, Text, theme } from 'galio-framework';
+import { Product } from '../components/';
 const { width } = Dimensions.get('screen');
-import products from '../constants/products';
-
-import { TabView, SceneMap,TabBar  } from 'react-native-tab-view';
-
+import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
+import AsyncStorage from '@react-native-community/async-storage';
 
 
 
 
+const renderLight = (fetchArray) => {
 
-const renderLight = () => {
-
-  return (
+  var pushlist = []
+  if (fetchArray == null)
+    pushlist = <Text size={16} style={{ alignSelf:'center',alignItems: 'center' }}>No Data. Turn on "Auto Detect" from Settings to start.</Text>
     
-    <ScrollView
-      showsVerticalScrollIndicator={false}
-      contentContainerStyle={styles.products}>
-      <Block flex>
-        <Product product={products[1]} full />
-        <Product product={products[2]} full />
-        <Product product={products[4]} full />
-        <Product product={products[4]} full />
-      </Block>
-    </ScrollView>
-  )
-}
-
-const renderNoise = () => {
+  else
+    for (i = 0; i < fetchArray.length; i++) {
+      pushlist.push(<Product key={"Ins" + i} product={fetchArray[i]} full />
+      )
+    }
   return (
     <ScrollView
       showsVerticalScrollIndicator={false}
       contentContainerStyle={styles.products}>
       <Block flex>
-        <Product product={products[3]} full />
-        <Product product={products[4]} full />
-        <Product product={products[4]} full />
-        <Product product={products[4]} full />
+        {pushlist}
       </Block>
     </ScrollView>
   )
 }
 
-const FirstRoute = () => (
-  <Block flex center style={styles.home}>
-    {renderNoise()}
-  </Block>
-);
+const renderNoise = (fetchArray) => {
 
-const SecondRoute = () => (
-  <Block flex center style={styles.home}>
-    {renderLight()}
-  </Block>
-);
+  var pushlist = []
+  if (fetchArray == null)
+    pushlist = [<Text size={16} style={{ alignSelf:'center',alignItems: 'center' }}>No Data. Click "Instant Mesure" to start.</Text>,
+    <Button title="restore" onPress={() => {
+      AsyncStorage.getItem('temp').then((token) => {
+        AsyncStorage.setItem('InsData', token);
+        console.log("done");
+      });
+    }}></Button>,
+
+    ]
+  else
+    for (i = 0; i < fetchArray.length; i++) {
+      pushlist.push(<Product key={"Ins" + i} product={fetchArray[i]} full />
+      )
+    }
+  return (
+    <ScrollView
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={styles.products}>
+      <Block flex>
+        {pushlist}
+      </Block>
+    </ScrollView>
+  )
+}
+
+
 
 export default class Home extends React.Component {
-  
+
   state = {
     index: 0,
     routes: [
-      { key: 'light', title: 'LIGHT', icon: 'map' },
-      { key: 'noise', title: 'NOISE' },
+      { key: 'light', title: 'INSTANT MEASURE', icon: 'map' },
+      { key: 'noise', title: 'AUTO MEASURE' },
     ],
-    element:[]
+    element: [],
+    isLoading: true,
+    test: Math.random(),
   };
 
-  renderSearch = () => {
-    const { navigation } = this.props;
-    const iconCamera = <Icon size={16} color={theme.COLORS.MUTED} name="zoom-in" family="material" />
-
-    return (
-      <Input
-        right
-        color="black"
-        style={styles.search}
-        iconContent={iconCamera}
-        placeholder="What are you looking for?"
-
-      />
-    )
-  }
-
-
-  renderTabs = () => {
-    const { navigation } = this.props;
-
-    return (
-      <Block row style={styles.tabs}>
-        <Button shadowless style={[styles.tab, styles.divider]} onPress={() => navigation.navigate('Pro')}>
-          <Block row middle>
-            <Icon name="grid" family="feather" style={{ paddingRight: 8 }} />
-            <Text size={16} style={styles.tabTitle}>Noise</Text>
-          </Block>
-        </Button>
-        <Button shadowless style={styles.tab} onPress={() => this.renderProductss()}>
-          <Block row middle>
-            <Icon size={16} name="camera-18" family="GalioExtra" style={{ paddingRight: 8 }} />
-            <Text size={16} style={styles.tabTitle}>Light</Text>
-          </Block>
-        </Button>
-      </Block>
-    )
-  }
-
-
-  renderProductss = async () => {
-
-
-
-    let a = await Location.reverseGeocodeAsync({
-      latitude: 22.368043,
-      longitude: 114.134825
+  componentDidMount() {
+    AsyncStorage.getItem('InsData').then((token) => {
+      AsyncStorage.setItem('temp', token);
+      this.setState({
+        isLoading: false,
+        element: JSON.parse(token)
+      });
     });
-
-
-    console.log(a[0].region, a[0].street, a[0].name)
-
-
-
-
   }
 
+
+  FirstRoute = () => {
+    return (
+      <Block flex center style={styles.home}>
+      
+        {renderNoise(this.state.element)}
+      </Block>
+
+
+    )
+  }
+  SecondRoute = () => {
+  
+    return (
+      <Block flex center style={styles.home}>
+      
+        {renderLight(null)}
+      </Block>
+
+
+    )
+  }
 
   renderTabBar(props) {
+
     return (<TabBar
       style={{ backgroundColor: '#FFFFFF' }}
       labelStyle={{ color: 'black', fontWeight: 'bold' }}
       {...props}
-      indicatorStyle={{ backgroundColor: '#9c26b0'}}
+      indicatorStyle={{ backgroundColor: '#9c26b0' }}
     />
     );
   }
+
+  forceUpdateHandler(){
+
+    this.setState( {test:Math.random(),element: null});
+    
+
+  };
   render() {
+    if (this.state.isLoading) {
+      return (<View><Text>Loading...</Text></View>)
+    }
     return (
 
+      
+      [<Button title="restore"  onPress={() => {this.forceUpdateHandler()
+        }} />,
+        <Text>{this.state.test}</Text>,
       <TabView
         renderTabBar={this.renderTabBar}
         navigationState={this.state}
-        renderScene={SceneMap({
-          noise: FirstRoute,
-          light: SecondRoute,
-        })}
+        renderScene={({ route}) => {
+          switch (route.key) {
+              case 'light':
+                  return this.FirstRoute();
+              case 'noise':
+                  return this.SecondRoute();
+
+              default:
+                  return null;
+          }
+      }}
         onIndexChange={index => this.setState({ index })}
 
-      />
+      />]
 
     );
   }

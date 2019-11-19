@@ -8,13 +8,18 @@ import {
   Platform,
   TextInput,
   Alert,
+  Dimensions,
 } from 'react-native'
 import BleModule from '../components/BleModule';
 import AsyncStorage from '@react-native-community/async-storage';
-
+import { Block, theme } from 'galio-framework';
+import { LineChart } from 'react-native-chart-kit';
+import * as Location from 'expo-location';
+import * as Permissions from 'expo-permissions';
+import Geocoder from 'react-native-geocoder-reborn';
+import { stringToBytes } from 'convert-string';
 global.BluetoothManager = new BleModule();
-const key='first'
-
+const key = 'InsData'
 export default class InsMeasure extends React.Component {
   constructor(props) {
     super(props);
@@ -27,7 +32,12 @@ export default class InsMeasure extends React.Component {
       receiveData: '',
       readData: '',
       isMonitoring: false,
-      demo:{},
+      lable: [0], light: [0], noise: [0],
+      lat: 0,
+      long: 0,
+      temp: '---',
+      humid: '---',
+      addr: '',
     }
     this.bluetoothReceiveData = [];  //蓝牙接收的数据缓存
     this.deviceMap = new Map();
@@ -59,18 +69,22 @@ export default class InsMeasure extends React.Component {
 
   restoreItem = async () => {
     let storedItem = {};
-    console.log("start 62");
+    //console.log("start 62");
+    
     try {
       const saved = await AsyncStorage.getItem(key);
-      storedItem = JSON.parse(saved || '{"demo": {}}');
-      console.log("done");
+      console.log("what is save?",saved);
+      storedItem = await JSON.parse(saved);
+      //console.log("done");
+
     } catch (e) {
-      console.warn(e);
+      await AsyncStorage.removeItem(key);
+      console.warn("error",e);
     }
 
     this.setState({
-		demo:storedItem
-      },
+      demo: storedItem
+    },
     );
   };
   //蓝牙状态改变
@@ -127,7 +141,52 @@ export default class InsMeasure extends React.Component {
     });
   }
 
-  //接收到新数据
+  parseData = (input) => {
+    var datasplit = input.split(",");
+    this.state.light.push(parseInt(datasplit[0]));
+    this.state.noise.push(parseInt(datasplit[1]));
+
+    this.state.lable.push(this.state.light.length - 1);
+    this.setState({ light: this.state.light });
+    this.setState({ noise: this.state.noise });
+    this.setState({ lable: this.state.lable });
+    if (this.state.temp == '---')
+      this.setState({ temp: datasplit[2] });
+    if (this.state.humid == '---')
+      this.setState({ humid: datasplit[3] });
+
+  }
+  average = arr => arr.reduce((p, c) => p + c, 0) / arr.length;
+  passData= async()=>{
+    var  outputData= {
+      maxlight: Math.max.apply(Math, this.state.noise),
+      maxnoise: Math.max.apply(Math, this.state.light),
+      avglight: Math.round(this.average(this.state.noise)),
+      avgnoise: Math.round(this.average(this.state.light)),
+      temperature: this.state.temp,
+      humidity: this.state.humid,
+      lat: this.state.lat,
+      long:this.state.long,
+      date:new Date().toLocaleString("en"),
+    }
+    var current_data = await AsyncStorage.getItem(key);
+    try{
+      if (current_data!=null){
+       current_data= await JSON.parse(current_data);
+      // console.log("this is cuur",current_data);
+        current_data.push(outputData);
+        await AsyncStorage.setItem(key, JSON.stringify(current_data));
+      }
+      else 
+        await AsyncStorage.setItem(key, "["+JSON.stringify(outputData)+"]");
+        console.log('done');
+    }
+    catch (e){
+      console.log('sorry error in sending data',e);
+      AsyncStorage.removeItem(key);
+      
+    }
+  }
   handleUpdateValue = async (data) => {
     //ios接收到的是小写的16进制，android接收的是大写的16进制，统一转化为大写16进制
     let value = data.value;
@@ -135,20 +194,43 @@ export default class InsMeasure extends React.Component {
     //this.bluetoothReceiveData.push(value);
     value.forEach(element => {
       tempStr = tempStr + String.fromCharCode(element);
-      console.log(String.fromCharCode(element));
+      //console.log(String.fromCharCode(element));
     });
-    this.bluetoothReceiveData.push(tempStr);
-    console.log(value, String.fromCharCode(value[0]));
-    console.log('BluetoothUpdateValue', value, tempStr);
-    this.setState({ receiveData: this.bluetoothReceiveData })
-    try {
-      await AsyncStorage.setItem(key, JSON.stringify(this.bluetoothReceiveData));
+    if (tempStr == 'end'){
+      try {
+        this.passData();
+        
+      } catch (e) {
+        console.warn(e);
+      }
+      this.offnotify();
 
-    } catch (e) {
-      console.warn(e);
     }
-  }
+    else
+      this.parseData(tempStr);
+    this.bluetoothReceiveData.push(tempStr);
 
+    console.log('BluetoothUpdateValue', tempStr);
+    //this.setState({ receiveData: this.bluetoothReceiveData })
+
+    /* try {
+       await AsyncStorage.setItem(key, JSON.stringify(this.bluetoothReceiveData));
+ 
+     } catch (e) {
+       console.warn(e);
+     }*/
+  }
+  resetBody = () => {
+    this.setState({ light: [0] });
+    this.setState({ noise: [0] });
+    this.setState({ lable: [0] });
+    this.setState({ lat: 0 });
+    this.setState({ long: 0 });
+    this.setState({ temp: '---' });
+    this.setState({ humid: '---' });
+    this.setState({ addr: '' });
+
+  };
   connect(item) {
     //当前蓝牙正在连接时不能打开另一个连接进程
     if (BluetoothManager.isConnecting) {
@@ -168,6 +250,8 @@ export default class InsMeasure extends React.Component {
         let newData = [...this.state.data];
         newData[item.index].isConnecting = false;
         //连接成功，列表只显示已连接的设备
+        this.resetBody();
+        // this._getLocationAsync(); 
         this.setState({
           data: [item.item],
           isConnected: true
@@ -272,11 +356,46 @@ export default class InsMeasure extends React.Component {
       })
   }
 
+  _getLocationAsync = async () => {
+    await Permissions.askAsync(Permissions.LOCATION);
+
+    let location = await Location.getCurrentPositionAsync({ enableHighAccuracy: true });
+    this.setState({ lat: location['coords']['latitude'] });
+    this.setState({ long: location['coords']['longitude'] });
+
+    await Geocoder.geocodePosition({ lat: this.state.lat, lng: this.state.long }).then(res => {
+
+      var best = "";
+      for (i = 0; i < res.length; i++) {
+        if (res[i]['adminArea'] != null) {
+          if (res[i]['formattedAddress'].length > best.length)
+            best = res[i]['formattedAddress'];
+        }
+      }
+
+      this.setState({ addr: best });
+    })
+  }
   notify = (index) => {
+    this.resetBody();
+
     BluetoothManager.startNotification(index)
       .then(() => {
+        BluetoothManager.write(stringToBytes('201'),1)
+        .then(() => {
+          this.bluetoothReceiveData = [];
+          this.setState({
+            writeData: 201,
+            text: '',
+          })
+        })
+        .catch(err => {
+          console.log(err)
+          this.alert('Failed to send');
+        })
+        this._getLocationAsync();
         this.setState({ isMonitoring: true });
-        this.alert('Turned on');
+        //this.alert('Turned on');
       })
       .catch(err => {
         this.setState({ isMonitoring: false });
@@ -284,6 +403,17 @@ export default class InsMeasure extends React.Component {
       })
   }
 
+  offnotify = () => {
+    BluetoothManager.stopNotification(0)
+      .then(() => {
+        this.setState({ isMonitoring: false })
+        //console.log("bubu")
+      })
+      .catch(err => {
+
+        this.alert('Failed to turn off');
+      })
+  }
   renderItem = (item) => {
     let data = item.item;
     return (
@@ -302,25 +432,16 @@ export default class InsMeasure extends React.Component {
       </TouchableOpacity>
     );
   }
-
+  
   renderHeader = () => {
     return (
       <View style={{ marginTop: 20 }}>
         <TouchableOpacity
           activeOpacity={0.7}
           style={[styles.buttonView, { marginHorizontal: 10, height: 40, alignItems: 'center' }]}
-          onPress={console.log("okok,",this.state.demo)}>
-          <Text style={styles.buttonText}>Get demo</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          activeOpacity={0.7}
-          style={[styles.buttonView, { marginHorizontal: 10, height: 40, alignItems: 'center' }]}
           onPress={this.restoreItem}>
-          <Text style={styles.buttonText}>Get thing</Text>
+          <Text style={styles.buttonText}>Debug(Get Async Stroage)</Text>
         </TouchableOpacity>
-
-
-
         <TouchableOpacity
           activeOpacity={0.7}
           style={[styles.buttonView, { marginHorizontal: 10, height: 40, alignItems: 'center' }]}
@@ -334,16 +455,77 @@ export default class InsMeasure extends React.Component {
       </View>
     )
   }
-
+ 
   renderFooter = () => {
     return (
       <View style={{ marginBottom: 30 }}>
         {this.state.isConnected ?
-          <View>
-            {this.renderWriteView('Write Data(write)：', 'Send', BluetoothManager.writeWithResponseCharacteristicUUID, this.write, this.state.writeData)}
+          <View >
+            {this.renderReceiveView('Current Status：' + `${this.state.isMonitoring ? 'Monitoring enabled' : 'Monitoring disabled'}`, `${this.state.isMonitoring ? 'Start Measuring' : 'Ready to measure'}`, BluetoothManager.nofityCharacteristicUUID, this.notify, this.state.receiveData)}
+            <View style={{ alignSelf: 'center', alignItems: 'center' }}>
+              <Block card width={Dimensions.get('window').width - 30} shadow shadowColor='#000000' style={styles.product}>
+                <Text size={16}> Date: {new Date().toLocaleString("en")}</Text>
+                <Text size={16}> Temperature: {this.state.temp}°C Humidity: {this.state.humid}%</Text>
+                <Text size={16}> Peak: {Math.max.apply(Math, this.state.noise)} dB, {Math.max.apply(Math, this.state.light)} lux</Text>
+                <Text size={16}> Average: {Math.round(this.average(this.state.noise))} dB, {Math.round(this.average(this.state.light))}lux</Text>
+                <Text size={16}> Location: {this.state.addr}</Text>
+              </Block>
+              <Block card width={Dimensions.get('window').width - 30} shadow shadowColor='#000000' style={styles.product}>
+                <View style={{ flexDirection: 'row'}}>
+                  <Text size={16}> Light: </Text>
+                  <Text size={40} style={{ color: 'yellow' }}>•</Text>
+                  <Text size={16}> Noise: </Text>
+                  <Text size={40} style={{ color: 'black' }}>•</Text>
+                </View>
+                <LineChart data={{
+                  labels: this.state.lable,
+                  datasets: [
+                    {
+                      data: this.state.light,
+                      strokeWidth: 2,
+                      color: (opacity = 1) => `rgba(255, 255, 4, ${opacity})`,
+
+                    },
+                    {
+                      data: this.state.noise,
+                      strokeWidth: 2,
+                    }
+                  ],
+                }}
+                  width={Dimensions.get('window').width - 50}
+                  height={Dimensions.get('window').height * 0.3}
+                  chartConfig={{
+                    backgroundColor: '#ffffff',
+                    backgroundGradientFrom: '#ffffff',
+                    backgroundGradientTo: '#ffffff',
+                    decimalPlaces: 0,
+                    color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                    style: {
+                      borderRadius: 16,
+                      marginRight: 30,
+                      alignSelf: 'center'
+                    },
+                  }}
+                  style={{
+                    backgroundColor: '#ffffff',
+                    borderRadius: 16,
+                    margin: 10,
+                    shadowColor: '#000000',
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowRadius: 4,
+                    shadowOpacity: 0.1,
+                    elevation: 2,
+                    alignSelf: 'center'
+
+                  }} />
+              <Text size={40} style={{ color: 'black' ,alignSelf:'center', alignItems: 'center',}}>Time(second)</Text>
+              </Block>
+            </View>
+
+            {/*{this.renderWriteView('Write Data(write)：', 'Send', BluetoothManager.writeWithResponseCharacteristicUUID, this.write, this.state.writeData)}
             {this.renderWriteView('(writeWithoutResponse)：', 'Send', BluetoothManager.writeWithoutResponseCharacteristicUUID, this.writeWithoutResponse, this.state.writeData)}
             {this.renderReceiveView('Read Data：', 'Read', BluetoothManager.readCharacteristicUUID, this.read, this.state.readData)}
-            {this.renderReceiveView('Notification Received Data：' + `${this.state.isMonitoring ? 'Monitoring enabled' : 'Monitoring disabled'}`, 'Turn on notification', BluetoothManager.nofityCharacteristicUUID, this.notify, this.state.receiveData)}
+                */}
 
           </View>
           : <View></View>
@@ -357,22 +539,20 @@ export default class InsMeasure extends React.Component {
       return;
     }
     return (
-      <View style={{ marginHorizontal: 10, marginTop: 30 }}>
-        <Text style={{ color: 'black', marginTop: 5 }}>{label}</Text>
-        <Text style={styles.content}>
-          {state}
-        </Text>
+      <View style={{ marginHorizontal: 10, marginTop: 5 }}>
+
         {characteristics.map((item, index) => {
           return (
             <TouchableOpacity
               activeOpacity={0.7}
               style={styles.buttonView}
-              onPress={() => { onPress(index) }}
+              onPress={() => onPress(index)}
               key={index}>
-              <Text style={styles.buttonText}>{buttonText} ({item})</Text>
+              <Text style={styles.buttonText}>{buttonText}</Text>
             </TouchableOpacity>
           )
         })}
+        <Text style={{ color: 'black', marginTop: 5 }}>{label}</Text>
       </View>
     )
   }
@@ -428,6 +608,12 @@ export default class InsMeasure extends React.Component {
 }
 
 const styles = StyleSheet.create({
+  product: {
+    backgroundColor: theme.COLORS.WHITE,
+    marginVertical: theme.SIZES.BASE,
+    borderWidth: 0,
+    minHeight: 114,
+  },
   container: {
     flex: 1,
     backgroundColor: 'white',
@@ -454,10 +640,12 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "white",
     fontSize: 12,
+    alignSelf:'center',
+    alignItems:'center',
   },
   content: {
     marginTop: 5,
-    marginBottom: 15,
+    marginBottom: 5,
   },
   textInput: {
     paddingLeft: 5,

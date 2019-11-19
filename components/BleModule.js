@@ -1,6 +1,4 @@
-/**
- * Created by guang on 2016/11/21.
- */
+
 import {
     Platform,
     NativeModules,
@@ -93,7 +91,7 @@ export default class BleModule{
         return new Promise( (resolve, reject) =>{
             BleManager.getDiscoveredPeripherals([])
                 .then((peripheralsArray) => {
-                    console.log('Discovered peripherals: ', peripheralsArray);
+                    //console.log('Discovered peripherals: ', peripheralsArray);
                     resolve(peripheralsArray);
                 })
                 .catch(error=>{
@@ -181,12 +179,12 @@ export default class BleModule{
                 }
             }
         }
-        console.log('readServiceUUID',this.readServiceUUID);
-        console.log('readCharacteristicUUID',this.readCharacteristicUUID);
-        console.log('writeWithResponseServiceUUID',this.writeWithResponseServiceUUID);
-        console.log('writeWithResponseCharacteristicUUID',this.writeWithResponseCharacteristicUUID);
-        console.log('writeWithoutResponseServiceUUID',this.writeWithoutResponseServiceUUID);
-        console.log('writeWithoutResponseCharacteristicUUID',this.writeWithoutResponseCharacteristicUUID);
+       // console.log('readServiceUUID',this.readServiceUUID);
+        //console.log('readCharacteristicUUID',this.readCharacteristicUUID);
+       console.log('writeWithResponseServiceUUID',this.writeWithResponseServiceUUID);
+       console.log('writeWithResponseCharacteristicUUID',this.writeWithResponseCharacteristicUUID);
+       // console.log('writeWithoutResponseServiceUUID',this.writeWithoutResponseServiceUUID);
+        //console.log('writeWithoutResponseCharacteristicUUID',this.writeWithoutResponseCharacteristicUUID);
         console.log('nofityServiceUUID',this.nofityServiceUUID);
         console.log('nofityCharacteristicUUID',this.nofityCharacteristicUUID);  
     }
@@ -244,7 +242,7 @@ export default class BleModule{
                     resolve();
                 })
                 .catch((error) => {
-                    console.log("nihaommamamama_____")
+                   // console.log("nihaommamamama_____")
                     console.log(this.nofityServiceUUID[index]);
                     console.log(this.nofityCharacteristicUUID[index]);
                     console.log('Notification error:',error);
@@ -258,15 +256,17 @@ export default class BleModule{
      * Stop the notification on the specified characteristic. 
      * */
     stopNotification(index = 0) { 
-        BleManager.stopNotification(this.peripheralId, this.nofityServiceUUID[index], this.nofityCharacteristicUUID[index])
+        return new Promise( (resolve, reject) =>{
+            BleManager.stopNotification(this.peripheralId, this.nofityServiceUUID[index], this.nofityCharacteristicUUID[index])
             .then(() => {
                 console.log('stopNotification success!');
-                resolve();
+                 resolve();
             })
             .catch((error) => {
                 console.log('stopNotification error:',error);
                 reject(error);
             });
+        });
     }
 
 	/** 
@@ -283,6 +283,7 @@ export default class BleModule{
                     resolve();
                 })
                 .catch((error) => {
+                    console.log(this.peripheralId, this.writeWithResponseServiceUUID[index], this.writeWithResponseCharacteristicUUID[index], data)
                     console.log('Write  failed: ',data);
                     reject(error);
                 });
