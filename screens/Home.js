@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Dimensions, ScrollView, View, Button, ActivityIndicator,} from 'react-native';
+import { StyleSheet, Dimensions, ScrollView, View, Button, ActivityIndicator,Platform} from 'react-native';
 import { Block, Text, theme } from 'galio-framework';
 import { Product } from '../components/';
 const { width } = Dimensions.get('screen');
@@ -39,7 +39,7 @@ const renderNoise = (fetchArray) => {
   var pushlist = []
   if (fetchArray == null)
     pushlist = [<Text size={16} key={"Ins0"} style={{ alignSelf: 'center', alignItems: 'center' }}>No Data. Click "Instant Measure" to start.</Text>,
-    <Button title="restore" onPress={() => {
+    <Button key={"Ins0Button"}title="restore" onPress={() => {
       AsyncStorage.getItem('temp').then((token) => {
         AsyncStorage.setItem('InsData', token);
         console.log("done");
@@ -90,6 +90,7 @@ export default class Home extends React.Component {
 
   componentDidMount() {
     AsyncStorage.getItem('InsData').then((token) => {
+      if (token!=null)
       AsyncStorage.setItem('temp', token);
       this.setState({
         isLoading: false,
@@ -129,7 +130,10 @@ export default class Home extends React.Component {
   };
   render() {
     if (this.state.isLoading) {
-      return (<View style={{ alignSelf: 'center', alignItems: 'center',justifyContent: 'center',flex:1 }}><ActivityIndicator size={80} color="#0000ff" /><Text size={30}>Loading...</Text></View>)
+      var size=1;
+      if (Platform.os=='android')
+        size=80;
+      return (<View style={{ alignSelf: 'center', alignItems: 'center',justifyContent: 'center',flex:1 }}><ActivityIndicator size={size} color="#0000ff" /><Text size={30}>Loading...</Text></View>)
     }
     return (
 

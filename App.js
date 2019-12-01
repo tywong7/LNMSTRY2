@@ -50,7 +50,7 @@ function big(){
 
     init().finally(() => {
       // without fadeout: RNBootSplash.hide()
-      console.log("done done");
+      //console.log("done done");
       RNBootSplash.hide({ duration: 50 });
     });
 
