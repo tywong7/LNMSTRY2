@@ -21,6 +21,7 @@ const renderLight = (fetchArray) => {
       )
     }
   return (
+    <Block flex center style={styles.home}>
     <ScrollView
       showsVerticalScrollIndicator={false}
       contentContainerStyle={styles.products}>
@@ -28,6 +29,7 @@ const renderLight = (fetchArray) => {
         {pushlist}
       </Block>
     </ScrollView>
+    </Block>
   )
 }
 
@@ -99,10 +101,10 @@ export default class Home extends React.Component {
   SecondRoute = () => {
   
     return (
-      <Block flex center style={styles.home}>
       
-        {renderLight(null)}
-      </Block>
+      
+        {}
+     
 
 
     )
@@ -143,7 +145,7 @@ export default class Home extends React.Component {
               case 'light':
                   return this.FirstRoute();
               case 'noise':
-                  return this.SecondRoute();
+                  return renderLight(null);
 
               default:
                   return null;
