@@ -1,10 +1,11 @@
 import React from 'react';
-import { StyleSheet, Dimensions, ScrollView, View, Button, } from 'react-native';
+import { StyleSheet, Dimensions, ScrollView, View, Button, ActivityIndicator,} from 'react-native';
 import { Block, Text, theme } from 'galio-framework';
 import { Product } from '../components/';
 const { width } = Dimensions.get('screen');
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import AsyncStorage from '@react-native-community/async-storage';
+import { NavigationEvents } from 'react-navigation';
 
 
 
@@ -13,22 +14,22 @@ const renderLight = (fetchArray) => {
 
   var pushlist = []
   if (fetchArray == null)
-    pushlist = <Text size={16} style={{ alignSelf:'center',alignItems: 'center' }}>No Data. Turn on "Auto Detect" from Settings to start.</Text>
-    
+    pushlist = <Text size={16} key={"Auto0"} style={{ alignSelf: 'center', alignItems: 'center' }}>No Data. Turn on "Auto Detect" from Settings to start.</Text>
+
   else
     for (i = 0; i < fetchArray.length; i++) {
-      pushlist.push(<Product key={"Ins" + i} product={fetchArray[i]} full />
+      pushlist.push(<Product key={"Auto" + i} product={fetchArray[i]} full />
       )
     }
   return (
     <Block flex center style={styles.home}>
-    <ScrollView
-      showsVerticalScrollIndicator={false}
-      contentContainerStyle={styles.products}>
-      <Block flex>
-        {pushlist}
-      </Block>
-    </ScrollView>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.products}>
+        <Block flex>
+          {pushlist}
+        </Block>
+      </ScrollView>
     </Block>
   )
 }
@@ -37,7 +38,7 @@ const renderNoise = (fetchArray) => {
 
   var pushlist = []
   if (fetchArray == null)
-    pushlist = [<Text size={16} style={{ alignSelf:'center',alignItems: 'center' }}>No Data. Click "Instant Mesure" to start.</Text>,
+    pushlist = [<Text size={16} key={"Ins0"} style={{ alignSelf: 'center', alignItems: 'center' }}>No Data. Click "Instant Measure" to start.</Text>,
     <Button title="restore" onPress={() => {
       AsyncStorage.getItem('temp').then((token) => {
         AsyncStorage.setItem('InsData', token);
@@ -48,7 +49,7 @@ const renderNoise = (fetchArray) => {
     ]
   else
     for (i = 0; i < fetchArray.length; i++) {
-      pushlist.push(<Product key={"Ins" + i} product={fetchArray[i]} full />
+      pushlist.push(<Product key={"InsN" + i} product={fetchArray[i]} full />
       )
     }
   return (
@@ -77,6 +78,16 @@ export default class Home extends React.Component {
     test: Math.random(),
   };
 
+
+  onFocus = async () => {
+    let asyncValue = await AsyncStorage.getItem('InsData');
+    let objFromAsyncValue = JSON.parse(asyncValue);
+    this.setState({
+      element: objFromAsyncValue
+    })
+    //console.log("88");
+}
+
   componentDidMount() {
     AsyncStorage.getItem('InsData').then((token) => {
       AsyncStorage.setItem('temp', token);
@@ -85,30 +96,21 @@ export default class Home extends React.Component {
         element: JSON.parse(token)
       });
     });
+    //console.log("DidMount");
   }
 
 
   FirstRoute = () => {
     return (
       <Block flex center style={styles.home}>
-      
+
         {renderNoise(this.state.element)}
       </Block>
 
 
     )
   }
-  SecondRoute = () => {
-  
-    return (
-      
-      
-        {}
-     
 
-
-    )
-  }
 
   renderTabBar(props) {
 
@@ -121,36 +123,33 @@ export default class Home extends React.Component {
     );
   }
 
-  forceUpdateHandler(){
-
-    this.setState( {test:Math.random(),element: null});
-    
+  forceUpdateHandler() {
+    this.setState({ test: Math.random(), element: null });
 
   };
   render() {
     if (this.state.isLoading) {
-      return (<View><Text>Loading...</Text></View>)
+      return (<View style={{ alignSelf: 'center', alignItems: 'center',justifyContent: 'center',flex:1 }}><ActivityIndicator size={80} color="#0000ff" /><Text size={30}>Loading...</Text></View>)
     }
     return (
 
-      
-      [<Button title="restore"  onPress={() => {this.forceUpdateHandler()
-        }} />,
-        <Text>{this.state.test}</Text>,
+
+      [
+        <NavigationEvents onDidFocus={console.log('reload')} onWillFocus={this.onFocus}/>,
       <TabView
         renderTabBar={this.renderTabBar}
         navigationState={this.state}
-        renderScene={({ route}) => {
+        renderScene={({ route }) => {
           switch (route.key) {
-              case 'light':
-                  return this.FirstRoute();
-              case 'noise':
-                  return renderLight(null);
+            case 'light':
+              return this.FirstRoute();
+            case 'noise':
+              return renderLight(null);
 
-              default:
-                  return null;
+            default:
+              return null;
           }
-      }}
+        }}
         onIndexChange={index => this.setState({ index })}
 
       />]

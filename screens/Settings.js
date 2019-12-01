@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Switch, FlatList, Platform, TouchableOpacity, ScrollView } from "react-native";
+import { StyleSheet, Switch, FlatList, Platform, TouchableOpacity, ScrollView,Dimensions } from "react-native";
 import { Block, Text, theme, Icon } from "galio-framework";
 import Slider from '@react-native-community/slider';
 import materialTheme from '../constants/Theme';
@@ -9,21 +9,54 @@ import appConfig from '../app.json';
 import AsyncStorage from '@react-native-community/async-storage';
 import Home from '../screens/Home';
 export default class Settings extends React.Component{
-  state = {};
+  state = {
+    Auto:false,
+    Notify:false,
+    Interval:1,
+  };
 
   constructor() {
     super();
 
     this.notif = new NotifService(this.onNotif.bind(this));
   }
+  componentDidMount() {
+    AsyncStorage.getItem('Auto Decect').then((token) => {
 
+      this.setState({
+        Auto: JSON.parse(token),
+      });
+    });
+    AsyncStorage.getItem('Notify').then((token) => {
+ 
+      this.setState({
+        Notify: JSON.parse(token),
+      });
+    });
+    AsyncStorage.getItem('Interval').then((token) => {
+
+      this.setState({
+        Interval: JSON.parse(token),
+      });
+    });
+  
+  }
   onNotif(notif) {
     console.log(notif);
     Alert.alert(notif.title, notif.message);
   }
   
-  toggleSwitch = switchNumber => {this.setState({ [switchNumber]: !this.state[switchNumber] }); console.log(this.state[switchNumber]);
-  if (!this.state[switchNumber]){
+  toggleSwitch =  async switchNumber => {this.setState({ [switchNumber]: !this.state[switchNumber] }); console.log(this.state[switchNumber]);
+  
+  if (switchNumber=='face'){
+    this.setState({Auto:!this.state['Auto']});
+   AsyncStorage.setItem('Auto Decect',JSON.stringify(!this.state[switchNumber]));
+  }
+  else {
+    this.setState({Notify:!this.state['Notify']});
+     AsyncStorage.setItem('Notify',JSON.stringify(!this.state[switchNumber]));
+  }
+  if (!this.state[switchNumber]&&switchNumber!='face'){
     this.notif.scheduleNotif(1,0);this.notif.scheduleNotif(6,1);
   }                                
 };
@@ -33,19 +66,39 @@ export default class Settings extends React.Component{
 
     switch (item.type) {
       case 'slider':
+   
         return (
           <Block row middle space="between" style={styles.rows}>
-            <Text size={14}>{item.title}</Text>
+          <Text size={14}>{item.title}({this.state.Interval} Mins)</Text>
             <Slider
-              style={{ width: 200, height: 40 }}
-              minimumValue={0}
-              maximumValue={1}
+              style={{ width: Dimensions.get('window').width -150, height: 40 }}
+              minimumValue={1}
+              maximumValue={120}
               minimumTrackTintColor="#FFFFFF"
-              maximumTrackTintColor="#000000"
+              maximumTrackTintColor="#800080"
+              value={this.state.Interval}
+              onValueChange={value=>{
+        
+
+                this.setState({Interval:parseInt(value)});
+
+                
+              }}
+              onSlidingComplete={value => {
+                AsyncStorage.setItem('Interval',JSON.stringify(parseInt(value)));
+                
+              }
+              
+            }
             />
           </Block>
         );
       case 'switch':
+
+        if (item.id=='Notifications')
+              this.state[item.id]=this.state.Notify;
+        else 
+            this.state[item.id]=this.state.Auto;
         return (
           <Block row middle space="between" style={styles.rows}>
             <Text size={14}>{item.title}</Text>
@@ -128,10 +181,22 @@ export default class Settings extends React.Component{
   }
 
   render() {
-    const recommended = [
-      { title: "Auto detect", id: "face", type: "switch" },
+    var recommended = []
+    if (this.state.Auto)
+    {
+      recommended=
+      [{ title: "Auto detect", id: "face", type: "switch" },
+      { title: "Interval", id: "detectInter", type: "slider" },
       { title: "Notifications and Warnings", id: "Notifications", type: "switch" },
-    ];
+      ]
+    }
+    else {
+      recommended=
+      [{ title: "Auto detect", id: "face", type: "switch" },
+      { title: "Notifications and Warnings", id: "Notifications", type: "switch" },
+      ]
+    }
+
 
     const payment = [
       { title: "Clear Instant Measure Log", id: "clear_1", type: "button" },
@@ -154,7 +219,7 @@ export default class Settings extends React.Component{
                 Detect & Notifications
               </Text>
               <Text center muted size={12}>
-                These are the most important settings
+                Functions settings
               </Text>
             </Block>
           }

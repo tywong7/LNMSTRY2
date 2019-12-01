@@ -1,6 +1,6 @@
 import React from 'react';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
-import { StyleSheet, Dimensions, Text, View,Button } from 'react-native';
+import { StyleSheet, Dimensions, Text, View,Button,Alert } from 'react-native';
 import { Block, theme } from 'galio-framework';
 import MapView from 'react-native-maps';
 import { Marker, Callout } from 'react-native-maps';
@@ -36,14 +36,28 @@ export default class PollutionMap extends React.Component {
       this.setState({
         locationResult: 'Permission to access location was denied',
       });
-      
+      console.log("fuck");
+      Alert.alert(
+        'Permission Denied',
+        'Please enable location service for a better experience.',
+    
+      )
     }
-
+    try{
     let location = await Location.getCurrentPositionAsync({enableHighAccuracy:true});
     this.setState({ locationResult: location['coords']['latitude'] });
     this.setState({ locationResult2: location['coords']['longitude'] });
     this.setState({ region: { ...this.state.region, latitude: location['coords']['latitude'] } });
     this.setState({ region: { ...this.state.region, longitude: location['coords']['longitude'] } });
+  }
+  catch (e){
+    Alert.alert(
+      'Permission Denied',
+      'Please enable location service for a better experience.',
+  
+    )
+  }
+
   };
   render() {
     return (

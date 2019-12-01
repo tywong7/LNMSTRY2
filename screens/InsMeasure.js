@@ -73,8 +73,26 @@ export default class InsMeasure extends React.Component {
     
     try {
       const saved = await AsyncStorage.getItem(key);
+      
+      /*var  outputData= {
+        maxlight: 47,
+        maxnoise: 80,
+        avglight: 26,
+        avgnoise: 99,
+        temperature: 26.8,
+        humidity: 75,
+        lat:25.0650704,
+        long:121.4969846,
+        date:new Date().toLocaleString("en"),
+      }
+      var current_data = await AsyncStorage.getItem(key);
+      current_data= await JSON.parse(current_data);
+      // console.log("this is cuur",current_data);
+      current_data.push(outputData);
+      await AsyncStorage.setItem(key, JSON.stringify(current_data))*/
       console.log("what is save?",saved);
       storedItem = await JSON.parse(saved);
+      
       //console.log("done");
 
     } catch (e) {
