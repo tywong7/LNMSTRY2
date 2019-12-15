@@ -1,52 +1,50 @@
 import React from 'react';
-import { StyleSheet, Dimensions, ScrollView, ImageBackground, Platform } from 'react-native';
+import { StyleSheet, Dimensions, ScrollView, ImageBackground, Platform, TouchableOpacity,ActivityIndicator } from 'react-native';
 import { Block, Text, theme } from 'galio-framework';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Icon } from '../components';
 import { Images, materialTheme } from '../constants';
 import { HeaderHeight } from "../constants/utils";
 import { LineChart } from 'react-native-chart-kit';
-
+import AsyncStorage from '@react-native-community/async-storage';
+import { NavigationEvents } from 'react-navigation';
 const { width, height } = Dimensions.get('screen');
 const thumbMeasure = (width - 48 - 32) / 3;
-var list = [];
 
-function pad(num, size) {
-  var s = num+"";
-  while (s.length < size) s = "0" + s;
-  return s;
-}
 
 function addComponent(number, list) {
-  for (i = 0; i < number; i++) {
-    var from=8,to=16;
-    var lable=[],light=[],noise=[];
-    for (j=from;j<=to;j++){
-      lable.push(pad(j,2));
-      light.push(Math.floor((Math.random() * 100) + 20));
-      noise.push(Math.floor((Math.random() * 100) + 20));
-    }
-    var lightsum = light.reduce((previous, current) => current += previous);
-    var noisesum = noise.reduce((previous, current) => current += previous);
-    list.push(
-      <Block key={i} card flex style={[styles.product, styles.shadow]}>
-        <Text size={16}> Date: 1{i}/10/2019</Text>
-        <Text size={16}> Time: {lable[0]}:00-{lable[lable.length-1]}:00  </Text>
-        <Text size={16}> Total: {to-from} hours </Text>
-        <Text size={16}> Peak: {Math.max.apply(Math, noise)} dB, {Math.max.apply(Math, light)} lux</Text>
-        <Text size={16}> Average: {Math.round(noisesum/noise.length)} dB, {Math.round(lightsum / light.length)} lux</Text>
-        <Text size={16}> Quality: Good</Text>
-        <LineChart
+  console.log(list);
+  average = arr => arr.reduce((p, c) => p + c, 0) / arr.length;
+  var arr = [];
+  if (list != null) {
+    
+
+    for (var i = list.length - 1; i >= list.length - 3; i--) {
+      if (list[i]==null)
+      break;
+      var label=[];
+      for (var x=parseInt(list[i].From)+1;x<=parseInt(list[i].To);x++){
+        label.push(x);
+      }
+      arr.push(
+        <Block key={'Profile'+i} card flex style={[styles.product, styles.shadow]}>
+          <Text size={16}> Date: {list[i].Date}</Text>
+          <Text size={16}> Time: {list[i].From}-{list[i].To}  </Text>
+          <Text size={16}> Total: {parseInt(list[i].To) - parseInt(list[i].From)} hours </Text>
+          <Text size={16}> Peak: {Math.max.apply(Math, list[i].NoiseValue)} dB, {Math.max.apply(Math, list[i].LightValue)} lux</Text>
+          <Text size={16}> Average: {Math.round(this.average(list[i].NoiseValue))} dB, {Math.round(this.average(list[i].LightValue))} lux</Text>
+          <Text size={16}> Quality: {list[i].Quality}</Text>
+          <LineChart
           data={{
-            labels: lable,
+            labels: label,
             datasets: [
               {
-                data: light,
+                data: list[i].LightValue,
                 strokeWidth: 2,
                 color: (opacity = 1) => `rgba(255, 255, 4, ${opacity})`
               },
               {
-                data: noise,
+                data: list[i].NoiseValue,
                 strokeWidth: 2,
               }
             ],
@@ -65,20 +63,123 @@ function addComponent(number, list) {
             },
           }}
           style={{
-            marginRight: 20,
+            alignSelf:'center',
             borderRadius: 16,
           }}
         />
-      </Block>
-
-    )
+        </Block>
+      )
+    }
   }
-  return list;
+  return arr;
+
 }
+
 export default class Profile extends React.Component {
+  state = {
+    good: 0,
+    normal: 0,
+    bad: 0,
+    element: null,
+    isLoading:true,
+    empty:false,
+
+  };
+  onFocus = async () => {
+    let asyncValue = await AsyncStorage.getItem('SleepData');
+    if(asyncValue!=null){
+    let data = JSON.parse(asyncValue);
+    this.setState({ good: data['good'] });
+    this.setState({ normal: data['normal'] });
+    this.setState({ bad: data['bad'] });
+    this.setState({ element: data['data'] });
+
+  }
+  else {
+    this.setState({ empty:true});
+  }
+}
+  componentDidMount() {
+
+    AsyncStorage.getItem('SleepData').then((token) => {
+      if (token){
+        let data = JSON.parse(token)
+      this.setState({ good: data['good'] });
+      this.setState({ normal: data['normal'] });
+      this.setState({ bad: data['bad'] });
+      this.setState({ element: data['data'] });
+      this.setState({ isLoading: false });
+      }
+      else{
+        this.setState({ empty:true  });
+      }
+    })
+  }
   render() {
+      var item1=[]
+      
+      if (this.state.empty){
+        item1.push(
+          
+          <Block style={{ alignSelf: 'center', alignItems: 'center',justifyContent: 'center',flex:1 }}><Text size={30}>No Record.</Text>
+          </Block>
+          )
+      }
+      else if (this.state.isLoading)
+        item1.push(
+          <Block style={{ alignSelf: 'center', alignItems: 'center',justifyContent: 'center',flex:1 }}><ActivityIndicator size="large" color="#0000ff" /><Text size={30}>Loading...</Text></Block>
+          )
+      else 
+        item1.push(
+          <ScrollView showsVerticalScrollIndicator={false}>
+            <Block row space="between" style={{ padding: theme.SIZES.BASE, }}>
+              <TouchableOpacity
+                activeOpacity={0.5}
+                onPress={() => this.props.navigation.navigate('ViewAll',{quality:'good'})}
+                style={{ alignItems: 'center' }}
+              >
+                <Text bold size={12} style={{ marginBottom: 8 }}>{this.state.good}</Text>
+                <Text muted size={12}>Good Quality</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                activeOpacity={0.5}
+                onPress={() => this.props.navigation.navigate('ViewAll',{quality:'normal'})}
+                style={{ alignItems: 'center' }}
+              >
+                <Text bold size={12} style={{ marginBottom: 8 }}>{this.state.normal}</Text>
+                <Text muted size={12}>Normal Quality</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                activeOpacity={0.5}
+                onPress={() => this.props.navigation.navigate('ViewAll',{quality:'bad'})}
+                style={{ alignItems: 'center' }}
+              >
+                <Text bold size={12} style={{ marginBottom: 8 }}>{this.state.bad}</Text>
+                <Text muted size={12}>Bad Quality</Text>
+              </TouchableOpacity>
+            </Block>
+            <Block row space="between" style={{ paddingVertical: 16, alignItems: 'baseline' }}>
+              <Text size={16} style={{ fontWeight: 'bold' }} >Recent Record</Text>
+              <Text size={16} style={{ fontWeight: 'bold' }} color={theme.COLORS.PRIMARY} onPress={() => this.props.navigation.navigate('ViewAll')}>View All</Text>
+            </Block>
+            <Block style={{ paddingBottom: -HeaderHeight * 2 }}>
+              <Block space="between" style={{ flexWrap: 'wrap' }} >
+                {addComponent(3, this.state.element)}
+
+
+
+                <Block card flex style={[styles.product, styles.shadow]}>
+
+                </Block>
+              </Block>
+            </Block>
+          </ScrollView>
+        )
     return (
+      
       <Block flex style={styles.profile}>
+        <NavigationEvents onDidFocus={console.log("")} onWillFocus={this.onFocus}/>
         <Block flex>
           <ImageBackground
             source={{ uri: Images.Profile }}
@@ -104,37 +205,7 @@ export default class Profile extends React.Component {
           </ImageBackground>
         </Block>
         <Block flex style={styles.options}>
-          <ScrollView showsVerticalScrollIndicator={false}>
-            <Block row space="between" style={{ padding: theme.SIZES.BASE, }}>
-              <Block middle>
-                <Text bold size={12} style={{ marginBottom: 8 }}>36</Text>
-                <Text muted size={12}>Good Quality</Text>
-              </Block>
-              <Block middle>
-                <Text bold size={12} style={{ marginBottom: 8 }}>5</Text>
-                <Text muted size={12}>Normal Quality</Text>
-              </Block>
-              <Block middle>
-                <Text bold size={12} style={{ marginBottom: 8 }}>2</Text>
-                <Text muted size={12}>Bad Quality</Text>
-              </Block>
-            </Block>
-            <Block row space="between" style={{ paddingVertical: 16, alignItems: 'baseline' }}>
-              <Text size={16}>Recent Record</Text>
-              <Text size={16} style={{fontWeight: 'bold'}} color={theme.COLORS.PRIMARY} onPress={() => this.props.navigation.navigate('ViewAll')}>View All</Text>
-            </Block>
-            <Block style={{ paddingBottom: -HeaderHeight * 2 }}>
-              <Block space="between" style={{ flexWrap: 'wrap' }} >
-              {addComponent(3, list)}
-
-
-
-                <Block card flex style={[styles.product, styles.shadow]}>
-
-                </Block>
-              </Block>
-            </Block>
-          </ScrollView>
+          {item1}
         </Block>
       </Block>
     );
@@ -156,8 +227,10 @@ const styles = StyleSheet.create({
   product: {
     backgroundColor: theme.COLORS.WHITE,
     marginVertical: theme.SIZES.BASE,
-    borderWidth: 0,
+    borderWidth: 0.5,
     minHeight: 114,
+
+
   },
   profileImage: {
     width: width * 1.1,

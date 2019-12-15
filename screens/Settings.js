@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Switch, FlatList, Platform, TouchableOpacity, ScrollView,Dimensions } from "react-native";
+import { StyleSheet, Switch, FlatList, Platform, TouchableOpacity, ScrollView,Dimensions,View,Button } from "react-native";
 import { Block, Text, theme, Icon } from "galio-framework";
 import Slider from '@react-native-community/slider';
 import materialTheme from '../constants/Theme';
@@ -179,7 +179,49 @@ export default class Settings extends React.Component{
         break;
     }
   }
+  test=()=>{
+    console.log("abc");
+    AsyncStorage.getItem('SleepData').then((token)=>{
+      if(token){
+        let temp=JSON.parse(token);
+      temp['data'].push(
+        {
+          Date: new Date().toLocaleDateString("zh"),
+          Quality: 'good',
+          From: '09:00',
+          To:'17:00',
+          LightValue:[70,80,10,20,15,18,20,20],
+          NoiseValue:[150,30,20,90,45,70,20,80]
+        }
+      )
+      temp['good']=temp['good']+1;
+      AsyncStorage.setItem('SleepData',JSON.stringify(temp));
+      }
+      else {
+        temp={
+          good:0,
+          normal:0,
+          bad:0,
+          data:[],
+        }
+        temp['data'].push(
+          {
+            Date: new Date().toLocaleDateString("zh"),
+            Quality: 'good',
+            From: '09:00',
+            To:'17:00',
+            LightValue:[70,80,10,20,15,18,20,20],
+            NoiseValue:[150,30,20,90,45,70,20,80]
+          }
+        );
+        temp['good']=temp['good']+1;
+        AsyncStorage.setItem('SleepData',JSON.stringify(temp));
 
+      }
+    }
+    
+    )
+  }
   render() {
     var recommended = []
     if (this.state.Auto)
@@ -206,9 +248,8 @@ export default class Settings extends React.Component{
 
 
     return (
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.settings}>
+      <View  style={styles.settings}>
+        <Button title="fuckyou" onPress={this.test}></Button>
         <FlatList
           data={recommended}
           keyExtractor={(item, index) => item.id}
@@ -238,7 +279,7 @@ export default class Settings extends React.Component{
           renderItem={this.renderItem}
         />
 
-      </ScrollView>
+      </View>
 
     );
   }

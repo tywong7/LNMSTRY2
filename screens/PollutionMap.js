@@ -36,7 +36,7 @@ export default class PollutionMap extends React.Component {
       this.setState({
         locationResult: 'Permission to access location was denied',
       });
-      console.log("fuck");
+
       Alert.alert(
         'Permission Denied',
         'Please enable location service for a better experience.',

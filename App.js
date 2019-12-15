@@ -56,8 +56,8 @@ function big(){
 
     
   return (
-    <GalioProvider theme={materialTheme}>
-      <Block flex>
+    <GalioProvider  theme={materialTheme}>
+      <Block flex >
         {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
         <AppContainer />
       </Block>
