@@ -17,6 +17,8 @@
     "@react-native-community/async-storage": "^1.6.2",
     "@react-native-community/slider": "^2.0.3",
     "@react-native-firebase/app": "^6.2.0",
+    "@react-native-firebase/auth": "^6.2.0",
+    "@react-native-firebase/firestore": "^6.2.0",
     "convert-string": "^0.1.0",
     "expo": "^34.0.0",
     "expo-asset": "~6.0.0",

@@ -88,6 +88,8 @@ export default class Profile extends React.Component {
   onFocus = async () => {
     let asyncValue = await AsyncStorage.getItem('SleepData');
     if(asyncValue!=null){
+      console.log("91");
+      this.setState({ empty:false});
     let data = JSON.parse(asyncValue);
     this.setState({ good: data['good'] });
     this.setState({ normal: data['normal'] });

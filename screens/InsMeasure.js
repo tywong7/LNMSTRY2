@@ -18,6 +18,7 @@ import * as Location from 'expo-location';
 import * as Permissions from 'expo-permissions';
 import Geocoder from 'react-native-geocoder-reborn';
 import { stringToBytes } from 'convert-string';
+import firestore, { firebase } from '@react-native-firebase/firestore';
 global.BluetoothManager = new BleModule();
 const key = 'InsData'
 export default class InsMeasure extends React.Component {
@@ -175,6 +176,11 @@ export default class InsMeasure extends React.Component {
 
   }
   average = arr => arr.reduce((p, c) => p + c, 0) / arr.length;
+   toTimestamp=(strDate)=>{
+    var datum = Date.parse(strDate);
+    console.log(datum);
+    return datum/1000;
+ }
   passData= async()=>{
     var  outputData= {
       maxlight: Math.max.apply(Math, this.state.noise),
@@ -187,6 +193,19 @@ export default class InsMeasure extends React.Component {
       long:this.state.long,
       date:new Date().toLocaleString("en"),
     }
+    const ref=firestore()
+  .collection('MeasuredResult');
+    await ref.add({
+      maxlight: outputData.maxlight,
+      maxnoise: outputData.maxnoise,
+      avglight: outputData.avglight,
+      avgnoise: outputData.avgnoise,
+      temperature: outputData.temperature,
+      humidity: outputData.humidity,
+      lat: outputData.lat,
+      long:outputData.long,
+      date:Date.parse(outputData.date),
+    });
     var current_data = await AsyncStorage.getItem(key);
     try{
       if (current_data!=null){

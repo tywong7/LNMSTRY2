@@ -50,4 +50,8 @@ target 'lnmstry' do
 
   pod 'RNFBApp', :path => '../node_modules/@react-native-firebase/app'
 
+  pod 'RNFBAuth', :path => '../node_modules/@react-native-firebase/auth'
+
+  pod 'RNFBFirestore', :path => '../node_modules/@react-native-firebase/firestore'
+
 end

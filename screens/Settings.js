@@ -5,10 +5,11 @@ import Slider from '@react-native-community/slider';
 import materialTheme from '../constants/Theme';
 import { Alert } from 'react-native';
 import NotifService from '../components/NotifService';
-import appConfig from '../app.json';
 import AsyncStorage from '@react-native-community/async-storage';
-import Home from '../screens/Home';
+import firestore, { firebase } from '@react-native-firebase/firestore';
+
 export default class Settings extends React.Component{
+  
   state = {
     Auto:false,
     Notify:false,
@@ -20,6 +21,7 @@ export default class Settings extends React.Component{
 
     this.notif = new NotifService(this.onNotif.bind(this));
   }
+  
   componentDidMount() {
     AsyncStorage.getItem('Auto Decect').then((token) => {
 
@@ -179,8 +181,11 @@ export default class Settings extends React.Component{
         break;
     }
   }
-  test=()=>{
-    console.log("abc");
+
+  test= async ()=>{
+   
+
+
     AsyncStorage.getItem('SleepData').then((token)=>{
       if(token){
         let temp=JSON.parse(token);
@@ -249,6 +254,7 @@ export default class Settings extends React.Component{
 
     return (
       <View  style={styles.settings}>
+        <Button title="fuckyou2" onPress={this.testAdd}></Button>
         <Button title="fuckyou" onPress={this.test}></Button>
         <FlatList
           data={recommended}

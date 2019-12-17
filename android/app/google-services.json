@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "207145023204",
+    "firebase_url": "https://copper-vertex-255509.firebaseio.com",
+    "project_id": "copper-vertex-255509",
+    "storage_bucket": "copper-vertex-255509.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:207145023204:android:45c8457619c3cacfa1def1",
+        "android_client_info": {
+          "package_name": "com.lnmstry"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "207145023204-8lpt3b2groq53o2f2bj3fp4aalmd9j4k.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.lnmstry",
+            "certificate_hash": "d3decff40e36826d09dbdb57d2ae308958ea10d3"
+          }
+        },
+        {
+          "client_id": "207145023204-52di5of66dathu4ujjk45884seubrru6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAsA_8B2QNMrfM0ETi3lWm2KeI5Zohzp7o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "207145023204-52di5of66dathu4ujjk45884seubrru6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

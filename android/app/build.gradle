@@ -93,7 +93,7 @@ def enableSeparateBuildPerCPUArchitecture = false
  * Run Proguard to shrink the Java bytecode in release builds.
  */
 def enableProguardInReleaseBuilds = false
-
+apply plugin: 'com.google.gms.google-services'
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
@@ -140,6 +140,9 @@ android {
 }
 
 dependencies {
+    
+    implementation project(':@react-native-firebase_firestore')
+    implementation project(':@react-native-firebase_auth')
     implementation project(':@react-native-firebase_app')
     implementation project(':react-native-bootsplash')
     implementation project(':@react-native-community_async-storage')
