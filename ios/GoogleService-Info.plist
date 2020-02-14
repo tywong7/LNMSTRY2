@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>207145023204-bj5alal0d2srcraahc6f9dlj63k3mdih.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.207145023204-bj5alal0d2srcraahc6f9dlj63k3mdih</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>207145023204-8lpt3b2groq53o2f2bj3fp4aalmd9j4k.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyCDDvEnh1atoQPzgM9ABOvSxNJPjR8BuGk</string>
+	<key>GCM_SENDER_ID</key>
+	<string>207145023204</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>org.reactjs.native.lnmstry</string>
+	<key>PROJECT_ID</key>
+	<string>copper-vertex-255509</string>
+	<key>STORAGE_BUCKET</key>
+	<string>copper-vertex-255509.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:207145023204:ios:db4aba5f4e677462a1def1</string>
+	<key>DATABASE_URL</key>
+	<string>https://copper-vertex-255509.firebaseio.com</string>
+</dict>
+</plist>
