@@ -14,7 +14,7 @@
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <imageView autoresizesSubviews="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="splash" adjustsImageSizeForAccessibilityContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="gjK-k9-NzW">
-                    <rect key="frame" x="101.66666666666669" y="114.66666666666669" width="162" height="188"/>
+                    <rect key="frame" x="101.33333333333333" y="114.33333333333333" width="162.33333333333337" height="188.33333333333337"/>
                     <preferredSymbolConfiguration key="preferredSymbolConfiguration" scale="default"/>
                 </imageView>
             </subviews>
