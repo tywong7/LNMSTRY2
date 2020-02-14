@@ -11,6 +11,8 @@
 		195CC5EB2382AAB100DFB1B9 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB11A68108700A75B9A /* LaunchScreen.xib */; };
 		19FF482A23818F6D00ACD324 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		4D64BCED9909DA648B587BE7 /* libPods-lnmstry.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E6561118072DE0E75EAE68C7 /* libPods-lnmstry.a */; };
+		B8760F2E1386459B8A4E621A /* TSBackgroundFetch.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 25950C407A2D4ECE810460B5 /* TSBackgroundFetch.framework */; };
+		6E226E2EA01847D4AD40FEAD /* RNBackgroundFetch+AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = A56DEAA1CF754BC69B617908 /* RNBackgroundFetch+AppDelegate.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -62,6 +64,8 @@
 		ED2971642150620600B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS12.0.sdk/System/Library/Frameworks/JavaScriptCore.framework; sourceTree = DEVELOPER_DIR; };
 		EFF3B277F881454899FD6644 /* EvilIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = EvilIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/EvilIcons.ttf"; sourceTree = "<group>"; };
 		FFB3C47261894DF59C0FD4AB /* Zocial.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Zocial.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Zocial.ttf"; sourceTree = "<group>"; };
+		25950C407A2D4ECE810460B5 /* TSBackgroundFetch.framework */ = {isa = PBXFileReference; name = "TSBackgroundFetch.framework"; path = "../node_modules/react-native-background-fetch/ios/RNBackgroundFetch/TSBackgroundFetch.framework"; sourceTree = SDKROOT; fileEncoding = undefined; lastKnownFileType = wrapper.framework; explicitFileType = undefined; includeInIndex = 0; };
+		A56DEAA1CF754BC69B617908 /* RNBackgroundFetch+AppDelegate.m */ = {isa = PBXFileReference; name = "RNBackgroundFetch+AppDelegate.m"; path = "../node_modules/react-native-background-fetch/ios/RNBackgroundFetch/RNBackgroundFetch+AppDelegate.m"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -70,6 +74,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4D64BCED9909DA648B587BE7 /* libPods-lnmstry.a in Frameworks */,
+				B8760F2E1386459B8A4E621A /* TSBackgroundFetch.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -86,6 +91,7 @@
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				13B07FB11A68108700A75B9A /* LaunchScreen.xib */,
 				13B07FB71A68108700A75B9A /* main.m */,
+				A56DEAA1CF754BC69B617908 /* RNBackgroundFetch+AppDelegate.m */,
 			);
 			name = lnmstry;
 			sourceTree = "<group>";
@@ -106,6 +112,7 @@
 				ED2971642150620600B7C4FE /* JavaScriptCore.framework */,
 				2D16E6891FA4F8E400B85C8A /* libReact.a */,
 				E6561118072DE0E75EAE68C7 /* libPods-lnmstry.a */,
+				25950C407A2D4ECE810460B5 /* TSBackgroundFetch.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -209,6 +216,11 @@
 					13B07F861A680F5B00A75B9A = {
 						DevelopmentTeam = ZGGU74UL8G;
 						ProvisioningStyle = Automatic;
+						SystemCapabilities = {
+							com.apple.BackgroundModes = {
+								enabled = true;
+							};
+						};
 					};
 				};
 			};
@@ -378,6 +390,7 @@
 			files = (
 				13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
+				6E226E2EA01847D4AD40FEAD /* RNBackgroundFetch+AppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

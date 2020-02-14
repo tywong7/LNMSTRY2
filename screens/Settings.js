@@ -6,7 +6,6 @@ import materialTheme from '../constants/Theme';
 import { Alert } from 'react-native';
 import NotifService from '../components/NotifService';
 import AsyncStorage from '@react-native-community/async-storage';
-import firestore, { firebase } from '@react-native-firebase/firestore';
 
 export default class Settings extends React.Component{
   
@@ -51,8 +50,11 @@ export default class Settings extends React.Component{
   toggleSwitch =  async switchNumber => {this.setState({ [switchNumber]: !this.state[switchNumber] }); console.log(this.state[switchNumber]);
   
   if (switchNumber=='face'){
+    Alert.alert("Message", "Please restart the app to activate.");
     this.setState({Auto:!this.state['Auto']});
+ 
    AsyncStorage.setItem('Auto Decect',JSON.stringify(!this.state[switchNumber]));
+   console.log(!this.state[switchNumber]);
   }
   else {
     this.setState({Notify:!this.state['Notify']});
@@ -74,7 +76,7 @@ export default class Settings extends React.Component{
           <Text size={14}>{item.title}({this.state.Interval} Mins)</Text>
             <Slider
               style={{ width: Dimensions.get('window').width -150, height: 40 }}
-              minimumValue={1}
+              minimumValue={15}
               maximumValue={120}
               minimumTrackTintColor="#FFFFFF"
               maximumTrackTintColor="#800080"
@@ -138,7 +140,7 @@ export default class Settings extends React.Component{
                     if (item.id=='clear_1')
                       try {
                         AsyncStorage.removeItem("InsData").then( (data)=>{
-                          console.log("done",data);
+                  
   
                           Alert.alert('Done','Cleared Instant Measure Data ');
                         });
@@ -149,7 +151,7 @@ export default class Settings extends React.Component{
                   else if (item.id=='clear_2')
                   try {
                     AsyncStorage.removeItem("AutoData").then( (data)=>{
-                      console.log("done",data);
+               
                       Alert.alert('Done','Clear Auto Measure Data ');
                     });
                   }
@@ -159,12 +161,12 @@ export default class Settings extends React.Component{
                   else
                   try {
                     AsyncStorage.removeItem("SleepData").then( (data)=>{
-                      console.log("done",data);
+               
                       Alert.alert('Done','Clear My Sleep Record');
                     });
                   }
                   catch (e){
-                    console.log("Clear Sleep Error",e);
+                    //console.log("Clear Sleep Error",e);
                   } 
                   } },
                 ],

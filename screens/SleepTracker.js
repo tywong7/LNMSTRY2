@@ -41,12 +41,12 @@ export default class SleepTracker extends Component<Props> {
 
   onRegister(token) {
     Alert.alert("Registered !", JSON.stringify(token));
-    console.log(token);
+    //console.log(token);
     this.setState({ registerToken: token.token, gcmRegistered: true });
   }
 
   onNotif(notif) {
-    console.log(notif);
+    console.log("Notif49",notif);
     Alert.alert(notif.title, notif.message);
   }
 

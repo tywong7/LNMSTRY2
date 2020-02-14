@@ -13,7 +13,7 @@ const thumbMeasure = (width - 48 - 32) / 3;
 
 
 function addComponent(number, list) {
-  console.log(list);
+
   average = arr => arr.reduce((p, c) => p + c, 0) / arr.length;
   var arr = [];
   if (list != null) {
@@ -88,7 +88,7 @@ export default class Profile extends React.Component {
   onFocus = async () => {
     let asyncValue = await AsyncStorage.getItem('SleepData');
     if(asyncValue!=null){
-      console.log("91");
+
       this.setState({ empty:false});
     let data = JSON.parse(asyncValue);
     this.setState({ good: data['good'] });

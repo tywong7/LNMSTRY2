@@ -3,6 +3,7 @@ package com.lnmstry;
 import android.app.Application;
 import com.airbnb.android.react.maps.MapsPackage;
 import com.facebook.react.ReactApplication;
+import com.transistorsoft.rnbackgroundfetch.RNBackgroundFetchPackage;
 import io.invertase.firebase.firestore.ReactNativeFirebaseFirestorePackage;
 import io.invertase.firebase.auth.ReactNativeFirebaseAuthPackage;
 import io.invertase.firebase.app.ReactNativeFirebaseAppPackage;
@@ -51,6 +52,7 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new RNBackgroundFetchPackage(),
             new ReactNativeFirebaseFirestorePackage(),
             new ReactNativeFirebaseAuthPackage(),
             new ReactNativeFirebaseAppPackage(),
@@ -85,5 +87,6 @@ public class MainApplication extends Application implements ReactApplication {
   public void onCreate() {
     super.onCreate();
     SoLoader.init(this, /* native exopackage */ false);
+
   }
 }
