@@ -92,7 +92,7 @@ function pushArray(index, list) {
   console.log("index", index, list)
   Aarray = [];
   if (list != null) {
-    console.log("work");
+
     var label = [];
     for (var x = parseInt(list.From) + 1; x <= parseInt(list.To); x++) {
       label.push(x);
@@ -191,7 +191,7 @@ export default class ViewAllScreen extends Component {
 
         if (this.state.tempSoucr.length != ele['data'].length) {
           CONTENT=[];
-          console.log("heyhey");
+
 
           for (var i = 0; i < ele['data'].length; i++) {
             CONTENT.push({
@@ -401,12 +401,12 @@ getQuality=async (index)=>{
                         var date1 = new Date(this.state.tempSoucr[x]['category_name']);
                         var startdate = new Date(this.state.rangestart);
                         var enddate = new Date(this.state.rangeend);
-                        console.log(date1, startdate, enddate);
+                        //console.log(date1, startdate, enddate);
                         if (date1 >= startdate && date1 <= enddate) {
                           temp.push(this.state.tempSoucr[x]);
                         }
-                        else
-                          console.log("123", this.state.rangestart, this.state.rangeend);
+                        else{}
+                          //console.log("123", this.state.rangestart, this.state.rangeend);
                       }
                       this.setState({ listDataSource: temp });
 

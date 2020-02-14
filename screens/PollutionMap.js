@@ -29,11 +29,10 @@ export default class PollutionMap extends React.Component {
   getData = async (lat, long, delta, deltaL) => {
     var latRange = delta / 2;
     const longRange = deltaL;
-    const querySnapshot = firestore()
-      .collection('MeasuredResult');
+    const querySnapshot = firestore().collection('MeasuredResult');
 
     const temp1 = await querySnapshot.where('date', '>=', Date.parse(new Date()) - 86400 * 1000).orderBy('date', "desc").get();
-    console.log(temp1);
+
     var templist = [];
     temp1.forEach((documentSnapshot) => {
       var exist = false;
@@ -124,7 +123,7 @@ export default class PollutionMap extends React.Component {
     else return 'green'
   }
   genMarker = (arrList) => {
-    console.log('start');
+    
     var tempMaker = [];
     for (i = 0; i < arrList.length; i++) {
       tempMaker.push(
@@ -162,7 +161,7 @@ export default class PollutionMap extends React.Component {
             fetchDetails={true}
             renderDescription={row => row.description} // custom description render
             onPress={(data, details = null) => { // 'details' is provided when fetchDetails = true
-              console.log("yolo", details['geometry']["location"]["lat"], details['geometry']["location"]["lng"]);
+              
               this.setState({ region: { ...this.state.region, latitude: details['geometry']["location"]["lat"] } });
               this.setState({ region: { ...this.state.region, longitude: details['geometry']["location"]["lng"] } });
             }}

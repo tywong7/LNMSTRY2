@@ -1,36 +1,34 @@
 import React from 'react';
-import { StyleSheet, Dimensions, ScrollView, View, Button, ActivityIndicator,Platform} from 'react-native';
+import { StyleSheet, Dimensions, ScrollView, View, Button, ActivityIndicator, Platform } from 'react-native';
 import { Block, Text, theme } from 'galio-framework';
 import { Product } from '../components/';
 const { width } = Dimensions.get('screen');
-import { TabView,  TabBar } from 'react-native-tab-view';
+import { TabView, TabBar } from 'react-native-tab-view';
 import AsyncStorage from '@react-native-community/async-storage';
 import { NavigationEvents } from 'react-navigation';
-
-
-
-
+import firestore, { firebase } from '@react-native-firebase/firestore';
+import BackgroundFetch from "react-native-background-fetch";
+import { stringToBytes } from 'convert-string';
+import NotifService from '../components/NotifService';
 const renderLight = (fetchArray) => {
 
   var pushlist = []
   if (fetchArray == null)
-    pushlist = <Text size={16} key={"Auto0"} style={{ alignSelf: 'center', alignItems: 'center' }}>No Data. Turn on "Auto Detect" from Settings to start.</Text>
-
+    pushlist = [<Text size={16} key={"Auto0"} style={{ alignSelf: 'center', alignItems: 'center' }}>No Data. Go Settings to turn on Auto Detect.</Text>
+    ]
   else
     for (i = 0; i < fetchArray.length; i++) {
-      pushlist.push(<Product key={"Auto" + i} product={fetchArray[i]} full />
+      pushlist.push(<Product key={"AutoN" + i} product={fetchArray[i]} full />
       )
     }
   return (
-    <Block flex center style={styles.home}>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.products}>
-        <Block flex>
-          {pushlist}
-        </Block>
-      </ScrollView>
-    </Block>
+    <ScrollView
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={styles.products}>
+      <Block flex>
+        {pushlist}
+      </Block>
+    </ScrollView>
   )
 }
 
@@ -42,7 +40,7 @@ const renderNoise = (fetchArray) => {
     <Button key={"Ins0Button"} title="restore" onPress={() => {
       AsyncStorage.getItem('temp').then((token) => {
         AsyncStorage.setItem('InsData', token);
-    
+
       });
     }}></Button>,
 
@@ -66,7 +64,16 @@ const renderNoise = (fetchArray) => {
 
 
 export default class Home extends React.Component {
+  constructor() {
+    super();
 
+    this.notif = new NotifService(this.onNotif.bind(this));
+  }
+  
+  onNotif(notif) {
+ 
+    Alert.alert(notif.title, notif.message);
+  }
   state = {
     index: 0,
     routes: [
@@ -74,6 +81,7 @@ export default class Home extends React.Component {
       { key: 'noise', title: 'AUTO MEASURE' },
     ],
     element: [],
+    autoelement:[],
     isLoading: true,
     test: Math.random(),
   };
@@ -81,17 +89,98 @@ export default class Home extends React.Component {
 
   onFocus = async () => {
     let asyncValue = await AsyncStorage.getItem('InsData');
+    
     let objFromAsyncValue = JSON.parse(asyncValue);
     this.setState({
       element: objFromAsyncValue
     })
+     asyncValue = await AsyncStorage.getItem('AutoData');
+     objFromAsyncValue = JSON.parse(asyncValue);
+    this.setState({
+      autoelement: objFromAsyncValue
+    })
     //console.log("88");
-}
+  }
 
   componentDidMount() {
+    AsyncStorage.getItem('Interval').then((token) => {
+    
+      var interval= parseInt(token);
+    AsyncStorage.getItem('Auto Decect').then((token) => {
+
+      if (token == "true") {
+        BackgroundFetch.configure({
+          minimumFetchInterval: interval,
+          forceAlarmManager: false,
+          stopOnTerminate: false,
+          startOnBoot: false,
+          requiredNetworkType: BackgroundFetch.NETWORK_TYPE_ANY,
+        }, async (taskId) => {
+          console.log("[js] Received background-fetch event: ", taskId);
+       
+      
+         
+   
+          global.BluetoothManager.startNotification(0)
+            .then(() => {
+              global.BluetoothManager.write(stringToBytes('201'), 1)
+                .then(() => {
+      
+     
+                })
+                .catch(err => {
+                  console.log(err)
+                  this.alert('Failed to send');
+                })
+              
+            }).catch(err=>{
+              console.log("error");
+              this.notif.localNotif("Connection Error: Please check the device connectivity at Instant Measure.")
+            })
+          
+
+
+     
+          // Remember to call finish()
+          BackgroundFetch.finish(taskId);
+        }, (error) => {
+          console.log("[js] RNBackgroundFetch failed to start");
+        });
+
+
+        BackgroundFetch.status((status) => {
+          switch (status) {
+            case BackgroundFetch.STATUS_RESTRICTED:
+              console.log("BackgroundFetch restricted");
+              break;
+            case BackgroundFetch.STATUS_DENIED:
+              console.log("BackgroundFetch denied");
+              break;
+            case BackgroundFetch.STATUS_AVAILABLE:
+              console.log("BackgroundFetch is enabled");
+              break;
+          }
+        });
+
+
+
+      }
+
+    }
+    );
+
+  });
+    AsyncStorage.getItem('AutoData').then((token) => {
+
+      this.setState({
+
+        autoelement: JSON.parse(token)
+      });
+    });
     AsyncStorage.getItem('InsData').then((token) => {
-      if (token!=null)
-      AsyncStorage.setItem('temp', token);
+      if (token != null)
+        AsyncStorage.setItem('temp', token);
+    
       this.setState({
         isLoading: false,
         element: JSON.parse(token)
@@ -106,6 +195,17 @@ export default class Home extends React.Component {
       <Block flex center style={styles.home}>
 
         {renderNoise(this.state.element)}
+      </Block>
+
+
+    )
+  }
+
+  AutoRoute = () => {
+    return (
+      <Block flex center style={styles.home}>
+
+        {renderLight(this.state.autoelement)}
       </Block>
 
 
@@ -130,33 +230,33 @@ export default class Home extends React.Component {
   };
   render() {
     if (this.state.isLoading) {
-      var size=1;
-      if (Platform.OS=='android')
-        size=80;
-      return (<View style={{ alignSelf: 'center', alignItems: 'center',justifyContent: 'center',flex:1 }}><ActivityIndicator size={size} color="#0000ff" /><Text size={30}>Loading...</Text></View>)
+      var size = 1;
+      if (Platform.OS == 'android')
+        size = 80;
+      return (<View style={{ alignSelf: 'center', alignItems: 'center', justifyContent: 'center', flex: 1 }}><ActivityIndicator size={size} color="#0000ff" /><Text size={30}>Loading...</Text></View>)
     }
     return (
 
 
       [
-        <NavigationEvents onDidFocus={console.log('reload')} onWillFocus={this.onFocus}/>,
-      <TabView
-        renderTabBar={this.renderTabBar}
-        navigationState={this.state}
-        renderScene={({ route }) => {
-          switch (route.key) {
-            case 'light':
-              return this.FirstRoute();
-            case 'noise':
-              return renderLight(null);
+        <NavigationEvents onDidFocus={console.log('reload')} onWillFocus={this.onFocus} />,
+        <TabView
+          renderTabBar={this.renderTabBar}
+          navigationState={this.state}
+          renderScene={({ route }) => {
+            switch (route.key) {
+              case 'light':
+                return this.FirstRoute();
+              case 'noise':
+                return this.AutoRoute();
 
-            default:
-              return null;
-          }
-        }}
-        onIndexChange={index => this.setState({ index })}
+              default:
+                return null;
+            }
+          }}
+          onIndexChange={index => this.setState({ index })}
 
-      />]
+        />]
 
     );
   }

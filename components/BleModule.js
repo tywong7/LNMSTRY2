@@ -39,7 +39,7 @@ export default class BleModule{
         BleManager.start({showAlert: false})
             .then( ()=>{
                 this.checkState();
-                console.log('Init the module success.');                
+                //console.log('Init the module success.');                
             }).catch(error=>{
                 console.log('Init the module fail.');
             });
@@ -61,7 +61,7 @@ export default class BleModule{
         return new Promise( (resolve, reject) =>{
             BleManager.scan([], 5, true)
                 .then( () => {
-                    console.log('Scan started');
+                   // console.log('Scan started');
                     resolve();
                 }).catch( (err)=>{
 	                console.log('Scan started fail');
@@ -181,8 +181,8 @@ export default class BleModule{
         }
        // console.log('readServiceUUID',this.readServiceUUID);
         //console.log('readCharacteristicUUID',this.readCharacteristicUUID);
-       console.log('writeWithResponseServiceUUID',this.writeWithResponseServiceUUID);
-       console.log('writeWithResponseCharacteristicUUID',this.writeWithResponseCharacteristicUUID);
+       //console.log('writeWithResponseServiceUUID',this.writeWithResponseServiceUUID);
+       //console.log('writeWithResponseCharacteristicUUID',this.writeWithResponseCharacteristicUUID);
        // console.log('writeWithoutResponseServiceUUID',this.writeWithoutResponseServiceUUID);
         //console.log('writeWithoutResponseCharacteristicUUID',this.writeWithoutResponseCharacteristicUUID);
         console.log('nofityServiceUUID',this.nofityServiceUUID);
@@ -198,7 +198,7 @@ export default class BleModule{
         return new Promise( (resolve, reject) =>{
             BleManager.connect(id)
                 .then(() => {
-                    console.log('Connected success.');
+                    //console.log('Connected success.');
                     return BleManager.retrieveServices(id);                    
                 })
                 .then((peripheralInfo)=>{
@@ -352,8 +352,10 @@ export default class BleModule{
                     resolve(isConnected);
                     if (isConnected) {                        
                         console.log('Peripheral is connected!');
+         
                     } else {
                         console.log('Peripheral is NOT connected!');
+      
                     }
                 }).catch(error=>{
                     reject(error);

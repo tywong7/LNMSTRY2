@@ -54,4 +54,8 @@ target 'lnmstry' do
 
   pod 'RNFBFirestore', :path => '../node_modules/@react-native-firebase/firestore'
 
+
+
+  pod 'RNBackgroundFetch', :path => '../node_modules/react-native-background-fetch'
+
 end

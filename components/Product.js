@@ -232,14 +232,22 @@ class Product extends React.Component {
     element:'Click for detailed address'
   };
   setModalVisible(a,b) {
+    if (a==0 && b==0){
+      this.setState({render:true});
+      this.setState({element:"No Location Infomation"});
+      return;
+    }
+
     if (!this.state.render){
 
     var NY = {
       lat: a,
       lng: b
     };
+
+
     Geocoder.geocodePosition(NY).then(res => {
-   
+      
       var best="";
       for (i=0;i<res.length;i++){
         if (res[i]['adminArea']!=null){
@@ -250,7 +258,10 @@ class Product extends React.Component {
       this.setState({render:true});
       this.setState({element:best});
   })
-  .catch(err => console.log(err))
+  .catch(err => {console.log("map",err)
+
+
+})
   }
 }
 
