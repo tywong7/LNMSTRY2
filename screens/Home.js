@@ -67,12 +67,16 @@ export default class Home extends React.Component {
   constructor() {
     super();
 
-    this.notif = new NotifService(this.onNotif.bind(this));
+    this.notif = new NotifService(this.onRegister.bind(this), this.onNotif.bind(this));
   }
-  
+  onRegister(token) {
+    //Alert.alert("Registered !", JSON.stringify(token));
+    console.log(token);
+    //this.setState({ registerToken: token.token, gcmRegistered: true });
+  }
   onNotif(notif) {
- 
-    Alert.alert(notif.title, notif.message);
+    this.props.navigation.navigate('InsMeasure');
+    //Alert.alert(notif.title, notif.message);
   }
   state = {
     index: 0,
@@ -229,6 +233,7 @@ export default class Home extends React.Component {
 
   };
   render() {
+    const { navigation, horizontal } = this.props;
     if (this.state.isLoading) {
       var size = 1;
       if (Platform.OS == 'android')

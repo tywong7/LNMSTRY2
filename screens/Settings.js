@@ -4,7 +4,6 @@ import { Block, Text, theme, Icon } from "galio-framework";
 import Slider from '@react-native-community/slider';
 import materialTheme from '../constants/Theme';
 import { Alert } from 'react-native';
-import NotifService from '../components/NotifService';
 import AsyncStorage from '@react-native-community/async-storage';
 
 export default class Settings extends React.Component{
@@ -18,7 +17,7 @@ export default class Settings extends React.Component{
   constructor() {
     super();
 
-    this.notif = new NotifService(this.onNotif.bind(this));
+  
   }
   
   componentDidMount() {
@@ -42,10 +41,7 @@ export default class Settings extends React.Component{
     });
   
   }
-  onNotif(notif) {
-    console.log(notif);
-    Alert.alert(notif.title, notif.message);
-  }
+
   
   toggleSwitch =  async switchNumber => {this.setState({ [switchNumber]: !this.state[switchNumber] }); console.log(this.state[switchNumber]);
   
@@ -60,9 +56,7 @@ export default class Settings extends React.Component{
     this.setState({Notify:!this.state['Notify']});
      AsyncStorage.setItem('Notify',JSON.stringify(!this.state[switchNumber]));
   }
-  if (!this.state[switchNumber]&&switchNumber!='face'){
-    this.notif.scheduleNotif(1,0);this.notif.scheduleNotif(6,1);
-  }                                
+                             
 };
 
   renderItem = ({ item }) => {

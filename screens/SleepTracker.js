@@ -16,6 +16,7 @@ export default class SleepTracker extends Component<Props> {
   }
 
   render() {
+    //const { navigation, horizontal } = this.props;
     return (
       <View style={styles.container}>
         <Text style={styles.title}>Example app react-native-push-notification</Text>
@@ -46,8 +47,9 @@ export default class SleepTracker extends Component<Props> {
   }
 
   onNotif(notif) {
-    console.log("Notif49",notif);
-    Alert.alert(notif.title, notif.message);
+    //this.props.navigation.navigate('InsMeasure');
+    ///console.log("Notif49",notif);
+    //Alert.alert(notif.title, notif.message);
   }
 
   handlePerm(perms) {
