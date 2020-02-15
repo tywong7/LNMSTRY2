@@ -48,8 +48,8 @@ export default class InsMeasure extends React.Component {
 
   }
   onNotif(notif) {
-    console.log(notif);
-    Alert.alert(notif.title, notif.message);
+    //console.log(notif);
+    //Alert.alert(notif.title, notif.message);
   }
   componentDidMount() {
 
