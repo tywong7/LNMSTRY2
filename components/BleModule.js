@@ -242,7 +242,7 @@ export default class BleModule{
                     resolve();
                 })
                 .catch((error) => {
-                   // console.log("nihaommamamama_____")
+                    console.log("nihaommamamama_____")
                     console.log(this.nofityServiceUUID[index]);
                     console.log(this.nofityCharacteristicUUID[index]);
                     console.log('Notification error:',error);
