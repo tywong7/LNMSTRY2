@@ -85,7 +85,7 @@ export default class Home extends React.Component {
       { key: 'noise', title: 'AUTO MEASURE' },
     ],
     element: [],
-    autoelement:[],
+    autoelement: [],
     isLoading: true,
     test: Math.random(),
   };
@@ -93,13 +93,13 @@ export default class Home extends React.Component {
 
   onFocus = async () => {
     let asyncValue = await AsyncStorage.getItem('InsData');
-    
+
     let objFromAsyncValue = JSON.parse(asyncValue);
     this.setState({
       element: objFromAsyncValue
     })
-     asyncValue = await AsyncStorage.getItem('AutoData');
-     objFromAsyncValue = JSON.parse(asyncValue);
+    asyncValue = await AsyncStorage.getItem('AutoData');
+    objFromAsyncValue = JSON.parse(asyncValue);
     this.setState({
       autoelement: objFromAsyncValue
     })
@@ -108,72 +108,71 @@ export default class Home extends React.Component {
 
   componentDidMount() {
     AsyncStorage.getItem('Interval').then((token) => {
-    
-      var interval= parseInt(token);
-    AsyncStorage.getItem('Auto Decect').then((token) => {
 
-      if (token == "true") {
-        BackgroundFetch.configure({
-          minimumFetchInterval: interval,
-          forceAlarmManager: false,
-          stopOnTerminate: false,
-          startOnBoot: false,
-          requiredNetworkType: BackgroundFetch.NETWORK_TYPE_ANY,
-        }, async (taskId) => {
-          console.log("[js] Received background-fetch event: ", taskId);
-       
-      
-         
-   
-          global.BluetoothManager.startNotification(0)
+      var interval = parseInt(token);
+      AsyncStorage.getItem('Auto Decect').then((token) => {
+
+        if (token == "true") {
+          BackgroundFetch.configure({
+            minimumFetchInterval: interval,
+            forceAlarmManager: false,
+            stopOnTerminate: false,
+            startOnBoot: false,
+            requiredNetworkType: BackgroundFetch.NETWORK_TYPE_ANY,
+          }, async (taskId) => {
+            console.log("[js] Received background-fetch event: ", taskId);
+
+
+            if (global.BluetoothManager.isConnected)
+            global.BluetoothManager.startNotification(0)
             .then(() => {
               global.BluetoothManager.write(stringToBytes('201'), 1)
                 .then(() => {
-      
-     
                 })
                 .catch(err => {
                   console.log(err)
                   this.alert('Failed to send');
                 })
-              
-            }).catch(err=>{
+
+            }).catch(err => {
               console.log("error");
               this.notif.localNotif("Connection Error: Please check the device connectivity at Instant Measure.")
             })
-          
+            else {console.log("dummy");
+            this.notif.localNotif("Connection Error: Please check the device connectivity at Instant Measure.")}
 
 
-     
-          // Remember to call finish()
-          BackgroundFetch.finish(taskId);
-        }, (error) => {
-          console.log("[js] RNBackgroundFetch failed to start");
-        });
 
 
-        BackgroundFetch.status((status) => {
-          switch (status) {
-            case BackgroundFetch.STATUS_RESTRICTED:
-              console.log("BackgroundFetch restricted");
-              break;
-            case BackgroundFetch.STATUS_DENIED:
-              console.log("BackgroundFetch denied");
-              break;
-            case BackgroundFetch.STATUS_AVAILABLE:
-              console.log("BackgroundFetch is enabled");
-              break;
-          }
-        });
+            // Remember to call finish()
+            BackgroundFetch.finish(taskId);
+          }, (error) => {
+            console.log("[js] RNBackgroundFetch failed to start");
+          });
 
 
+          BackgroundFetch.status((status) => {
+            switch (status) {
+              case BackgroundFetch.STATUS_RESTRICTED:
+                console.log("BackgroundFetch restricted");
+                break;
+              case BackgroundFetch.STATUS_DENIED:
+                console.log("BackgroundFetch denied");
+                break;
+              case BackgroundFetch.STATUS_AVAILABLE:
+                console.log("BackgroundFetch is enabled");
+                break;
+            }
+          });
+
+
+
+        }
 
       }
+      );
 
-    }
-    );
-
-  });
+    });
     AsyncStorage.getItem('AutoData').then((token) => {
 
       this.setState({
@@ -184,7 +183,7 @@ export default class Home extends React.Component {
     AsyncStorage.getItem('InsData').then((token) => {
       if (token != null)
         AsyncStorage.setItem('temp', token);
-    
+
       this.setState({
         isLoading: false,
         element: JSON.parse(token)

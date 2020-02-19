@@ -374,6 +374,7 @@ export default class InsMeasure extends React.Component {
           data: [item.item],
           isConnected: true
         });
+        BluetoothManager.isConnected=true;
       })
       .catch(err => {
         let newData = [...this.state.data];
@@ -388,6 +389,7 @@ export default class InsMeasure extends React.Component {
       data: [...this.deviceMap.values()],
       isConnected: false
     });
+    BluetoothManager.isConnected=false;
     BluetoothManager.disconnect();
   }
 

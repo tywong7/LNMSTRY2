@@ -12,6 +12,7 @@ const bleManagerEmitter = new NativeEventEmitter(BleManagerModule);
 
 export default class BleModule{
     constructor(){
+        this.isConnected = false;
 	    this.isConnecting = false;  //蓝牙是否连接
         this.bluetoothState = 'off';   //蓝牙打开状态	  
         this.initUUID();
