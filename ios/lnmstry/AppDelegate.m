@@ -13,6 +13,7 @@
 #import <UMCore/UMModuleRegistry.h>
 #import <UMReactNativeAdapter/UMNativeModulesProxy.h>
 #import <UMReactNativeAdapter/UMModuleRegistryAdapter.h>
+#import <TSBackgroundFetch/TSBackgroundFetch.h>
 #import "RNBootSplash.h"
 @implementation AppDelegate
 
@@ -29,7 +30,7 @@
   RCTRootView *rootView = [[RCTRootView alloc] initWithBridge:bridge moduleName:@"lnmstry" initialProperties:nil];
   rootView.backgroundColor = [[UIColor alloc] initWithRed:1.0f green:1.0f blue:1.0f alpha:1];
 
-  self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+  self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
   UIViewController *rootViewController = [UIViewController new];
   rootViewController.view = rootView;
   self.window.rootViewController = rootViewController;
@@ -37,7 +38,10 @@
   [RNBootSplash show:@"LaunchScreen" inView:rootView]; 
 
   [super application:application didFinishLaunchingWithOptions:launchOptions];
-
+  // [react-native-background-fetch Setup]
+  TSBackgroundFetch *fetch = [TSBackgroundFetch sharedInstance];
+  // [REQUIRED] Register for usual periodic background refresh events here:
+  [fetch registerAppRefreshTask];
   return YES;
 }
 

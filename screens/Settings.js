@@ -51,6 +51,7 @@ export default class Settings extends React.Component{
  
    AsyncStorage.setItem('Auto Decect',JSON.stringify(!this.state[switchNumber]));
    console.log(!this.state[switchNumber]);
+   AsyncStorage.setItem('Interval',JSON.stringify(15));
   }
   else {
     this.setState({Notify:!this.state['Notify']});

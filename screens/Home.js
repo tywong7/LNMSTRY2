@@ -108,11 +108,21 @@ export default class Home extends React.Component {
 
   componentDidMount() {
     AsyncStorage.getItem('Interval').then((token) => {
+<<<<<<< HEAD
 
       var interval = parseInt(token);
       AsyncStorage.getItem('Auto Decect').then((token) => {
 
         if (token == "true") {
+=======
+    
+      var interval= parseInt(token);
+    AsyncStorage.getItem('Auto Decect').then((token) => {
+
+      if (token == "true") {
+        console.log("haha");
+         try{
+>>>>>>> d15fbe5860cf9783147c40f4eefffd18a76e1b2a
           BackgroundFetch.configure({
             minimumFetchInterval: interval,
             forceAlarmManager: false,
@@ -149,6 +159,29 @@ export default class Home extends React.Component {
           }, (error) => {
             console.log("[js] RNBackgroundFetch failed to start");
           });
+<<<<<<< HEAD
+=======
+  
+  
+          BackgroundFetch.status((status) => {
+            switch (status) {
+              case BackgroundFetch.STATUS_RESTRICTED:
+                console.log("BackgroundFetch restricted");
+                break;
+              case BackgroundFetch.STATUS_DENIED:
+                console.log("BackgroundFetch denied");
+                break;
+              case BackgroundFetch.STATUS_AVAILABLE:
+                console.log("BackgroundFetch is enabled");
+                break;
+            }
+          });
+        }
+          catch (err){
+            console.log("ohno",err);
+          }
+
+>>>>>>> d15fbe5860cf9783147c40f4eefffd18a76e1b2a
 
 
           BackgroundFetch.status((status) => {
