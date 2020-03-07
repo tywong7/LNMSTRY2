@@ -13,7 +13,7 @@ import {
   Dimensions, Button, Modal
 } from 'react-native';
 import { Block, Checkbox } from 'galio-framework';
-import { LineChart } from 'react-native-chart-kit';
+import { LineChart,PieChart } from 'react-native-chart-kit';
 import DateRangePicker from '../components/DateRangePicker';
 import AsyncStorage from '@react-native-community/async-storage';
 import { NavigationEvents } from 'react-navigation';
@@ -88,66 +88,165 @@ class ExpandableItemComponent extends Component {
 }
 
 function pushArray(index, list) {
-  average = arr => arr.reduce((p, c) => p + c, 0) / arr.length;
-  console.log("index", index, list)
   Aarray = [];
+  const data = [
+    {
+      name: "Seoul",
+      population: 21500000,
+      color: "rgba(131, 167, 234, 1)",
+      legendFontColor: "#7F7F7F",
+      legendFontSize: 15
+    },
+    {
+      name: "Toronto",
+      population: 2800000,
+      color: "#F00",
+      legendFontColor: "#7F7F7F",
+      legendFontSize: 15
+    },
+    {
+      name: "Beijing",
+      population: 527612,
+      color: "red",
+      legendFontColor: "#7F7F7F",
+      legendFontSize: 15
+    },
+    {
+      name: "New York",
+      population: 8538000,
+      color: "#ffffff",
+      legendFontColor: "#7F7F7F",
+      legendFontSize: 15
+    },
+    {
+      name: "Moscow",
+      population: 11920000,
+      color: "rgb(0, 0, 255)",
+      legendFontColor: "#7F7F7F",
+      legendFontSize: 15
+    }
+  ];
   if (list != null) {
 
-    var label = [];
-    for (var x = parseInt(list.From) + 1; x <= parseInt(list.To); x++) {
-      label.push(x);
-    }
+    //console.log("94",list.ratio);
     Aarray.push(
       <Block key={index} card width={Dimensions.get('window').width - 30} shadow shadowColor='#000000' style={styles.product}>
-        <Text size={16}> Time: {list.From}-{list.To}  </Text>
-        <Text size={16}> Total: {parseInt(list.To) - parseInt(list.From)} hours </Text>
-        <Text size={16}> Peak: {Math.max.apply(Math, list.NoiseValue)} dB, {Math.max.apply(Math, list.LightValue)} lux</Text>
-        <Text size={16}> Average: {Math.round(this.average(list.NoiseValue))} dB, {Math.round(this.average(list.LightValue))} lux</Text>
-      </Block>,
-      <Block key={index + "graph"} card width={Dimensions.get('window').width - 30} shadow shadowColor='#000000' style={styles.product}>
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Text size={16}> Light: </Text>
-          <Text size={40} style={{ color: 'yellow' }}>•</Text>
-          <Text size={16}> Noise: </Text>
-          <Text size={40} style={{ color: 'black' }}>•</Text>
-
-        </View>
-
-
+        <Text size={16}> Time: {list.Hour}  </Text>
+        <Text size={16}> Total: {list.AcutalSleep}</Text>
+        <Text size={16}> Quality: {list.Quality+list.DetailQ}</Text>
+        <Text size={16}> Efficiency: {list.Efficiency} </Text>
+        <Text size={16}> {list.maxavg}</Text>
       </Block>,
       <LineChart
-        data={{
-          labels: label,
-          datasets: [
-            {
-              data: list.LightValue,
-              strokeWidth: 2,
-              color: (opacity = 1) => `rgba(255, 255, 4, ${opacity})`
-            },
-            {
-              data: list.NoiseValue,
-              strokeWidth: 2,
-            }
-          ],
-        }}
-        width={Dimensions.get('window').width - 80}
-        height={220}
-        chartConfig={{
-          backgroundColor: '#1cc910',
-          backgroundGradientFrom: '#eff3ff',
-          backgroundGradientTo: '#efefef',
-          decimalPlaces: 0,
-          color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-          style: {
-            borderRadius: 16,
-            margin: 18,
+      bezier
+      withDots={false}
+      withShadow={false}
+      withInnerLines={false}
+      withOuterLines={false}
+      width={Dimensions.get('window').width -30}
+      height={220}
+      data={{
+        labels: list.label,
+        legend: ["Sleep Stage", "Light", "Noise"],
+        datasets: [
+
+          {
+            data: list.SleepValue,
+
+            color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`
           },
-        }}
-        style={{
-          alignSelf: 'center',
-          borderRadius: 16,
-        }}
-      />);
+          {
+            data:list.LightValue,
+            color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})`
+          },
+          {
+            data:list.NoiseValue,
+
+            color: (opacity = 1) => `rgba(255, 237, 0, ${opacity})`
+          }
+
+        ]
+      }
+    }
+ // from react-nativ
+      verticalLabelRotation={0}
+      // optional, defaults to 1
+
+      chartConfig={{
+        backgroundColor: "#000000",
+        backgroundGradientFrom: "#000000",
+        backgroundGradientTo: "#000000",
+        decimalPlaces: 0, // optional, defaults to 2dp
+        color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+        labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+        style: {
+          borderRadius: 16
+        },
+        propsForDots: {
+          r: "6",
+          strokeWidth: "2",
+          stroke: "#ffa726"
+        }
+      }}
+
+      style={{
+        marginHorizontal:16,
+        marginVertical: 8,
+        borderRadius: 16
+      }}
+    />,
+    <PieChart
+    data={[
+      {
+        name: "Deep(" + list.ratio[0] + " mins)",
+        population: list.ratio[0],
+        color: "#154BA6",
+        legendFontColor: "#7F7F7F",
+        legendFontSize: 12
+      },
+      {
+        name: "Light(" + list.ratio[1] + " mins)",
+        population: list.ratio[1],
+        color: "#3F8DFF",
+        legendFontColor: "#7F7F7F",
+        legendFontSize: 12
+      },
+      {
+        name: "Rem(" + list.ratio[2] + " mins)",
+        population: list.ratio[2],
+        color: "#7EC4FF",
+        legendFontColor: "#7F7F7F",
+        legendFontSize: 12
+      },
+      {
+        name: "Awake(" + list.ratio[3] + " mins)",
+        population: list.ratio[3],
+        color: "#E73360",
+        legendFontColor: "#7F7F7F",
+        legendFontSize: 12
+      }
+    ]}
+    chartConfig={{
+   
+      decimalPlaces: 0, // optional, defaults to 2dp
+      color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+      labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+    }}
+    style={{
+      borderRadius: 16,
+      marginLeft:16,
+      alignSelf:'center',
+    }
+
+    }
+    width={Dimensions.get('window').width*0.97}
+    height={220}
+    accessor="population"
+    backgroundColor="#201842"
+
+
+  />
+      );
 
   }
 
@@ -295,8 +394,8 @@ export default class ViewAllScreen extends Component {
 getQuality=async (index)=>{
     if(!this.state.trigger){
       this.setState({trigger:true});
-      console.log("trigger");
-      console.log(index);
+     // console.log("trigger");
+     // console.log(index);
     }
     else{
       if(index==0)
@@ -494,7 +593,7 @@ var CONTENT = [];
 AsyncStorage.getItem('SleepData').then((token) => {
   if (token) {
     let ele = JSON.parse(token);
-
+    //console.log(token);
     for (var i = 0; i < ele['data'].length; i++) {
       CONTENT.push({
         isExpanded: false,

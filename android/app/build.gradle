@@ -105,6 +105,10 @@ android {
         versionCode 1
         versionName "1.0"
         minSdkVersion 21
+        manifestPlaceholders = [
+      appAuthRedirectScheme: 'lnmstry'
+    ]
+
     }
     splits {
         abi {

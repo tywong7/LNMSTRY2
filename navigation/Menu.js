@@ -2,11 +2,20 @@ import React from "react";
 import { DrawerItems } from 'react-navigation';
 import { TouchableWithoutFeedback, ScrollView, StyleSheet, Dimensions, Image } from "react-native";
 import { Block, Text, theme } from "galio-framework";
-
+import AsyncStorage from '@react-native-community/async-storage';
 import { Icon } from '../components/';
 import { Images, materialTheme } from "../constants/";
 
 const { width } = Dimensions.get('screen');
+
+
+async function asyncSetProfile(){
+  profile.avatar=await AsyncStorage.getItem("userAvatar");
+  profile.name=await AsyncStorage.getItem("userName");
+  profile.type= await AsyncStorage.getItem("userGender");
+}
+
+asyncSetProfile();
 
 const Drawer = (props) => (
   <Block style={styles.container} forceInset={{ top: 'always', horizontal: 'never' }}>
@@ -35,11 +44,11 @@ const Drawer = (props) => (
   </Block>
 );
 
-const profile = {
+let profile = {
   avatar: Images.Profile,
   name: 'FYP',
   type: 'KSL1901',
-  plan: 'New',
+  plan: 'FYP',
   rating: 4.8
 };
 

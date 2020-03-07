@@ -12,9 +12,9 @@ const { width, height } = Dimensions.get('screen');
 const thumbMeasure = (width - 48 - 32) / 3;
 
 
-function addComponent(number, list) {
+function addComponent( list) {
 
-  average = arr => arr.reduce((p, c) => p + c, 0) / arr.length;
+
   var arr = [];
   if (list != null) {
     
@@ -22,51 +22,74 @@ function addComponent(number, list) {
     for (var i = list.length - 1; i >= list.length - 3; i--) {
       if (list[i]==null)
       break;
-      var label=[];
-      for (var x=parseInt(list[i].From)+1;x<=parseInt(list[i].To);x++){
-        label.push(x);
-      }
+      //console.log(2555,list[i].SleepValue,list[i].NoiseValue,list[i].LightValue);
       arr.push(
         <Block key={'Profile'+i} card flex style={[styles.product, styles.shadow]}>
           <Text size={16}> Date: {list[i].Date}</Text>
-          <Text size={16}> Time: {list[i].From}-{list[i].To}  </Text>
-          <Text size={16}> Total: {parseInt(list[i].To) - parseInt(list[i].From)} hours </Text>
-          <Text size={16}> Peak: {Math.max.apply(Math, list[i].NoiseValue)} dB, {Math.max.apply(Math, list[i].LightValue)} lux</Text>
-          <Text size={16}> Average: {Math.round(this.average(list[i].NoiseValue))} dB, {Math.round(this.average(list[i].LightValue))} lux</Text>
-          <Text size={16}> Quality: {list[i].Quality}</Text>
-          <LineChart
-          data={{
-            labels: label,
-            datasets: [
-              {
-                data: list[i].LightValue,
-                strokeWidth: 2,
-                color: (opacity = 1) => `rgba(255, 255, 4, ${opacity})`
-              },
-              {
-                data: list[i].NoiseValue,
-                strokeWidth: 2,
-              }
-            ],
-          }}
-          width={Dimensions.get('window').width - 80}
-          height={220}
-          chartConfig={{
-            backgroundColor: '#1cc910',
-            backgroundGradientFrom: '#eff3ff',
-            backgroundGradientTo: '#efefef',
-            decimalPlaces: 0,
-            color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-            style: {
-              borderRadius: 16,
-              margin: 18,
-            },
-          }}
-          style={{
-            alignSelf:'center',
-            borderRadius: 16,
-          }}
-        />
+          <Text size={16}> Time: {list[i].Hour} </Text>
+          <Text size={16}> Total: {list[i].AcutalSleep}</Text>
+          <Text size={16}> Quality: {list[i].Quality+list[i].DetailQ}</Text>
+          <Text size={16}> Efficiency: {list[i].Efficiency} </Text>
+          <Text size={16}> {list[i].maxavg}</Text>
+    
+      <LineChart
+              bezier
+              withDots={false}
+              withShadow={false}
+              withInnerLines={false}
+              withOuterLines={false}
+              width={Dimensions.get('window').width -30}
+              height={220}
+              data={{
+                labels: list[i].label,
+                legend: ["Sleep Stage", "Light", "Noise"],
+                datasets: [
+    
+                  {
+                    data: list[i].SleepValue,
+    
+                    color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`
+                  },
+                  {
+                    data:list[i].LightValue,
+                    color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})`
+                  },
+                  {
+                    data:list[i].NoiseValue,
+    
+                    color: (opacity = 1) => `rgba(255, 237, 0, ${opacity})`
+                  }
+    
+                ]
+              }}
+         // from react-nativ
+              verticalLabelRotation={0}
+              // optional, defaults to 1
+
+              chartConfig={{
+                backgroundColor: "#000000",
+                backgroundGradientFrom: "#000000",
+                backgroundGradientTo: "#000000",
+                decimalPlaces: 0, // optional, defaults to 2dp
+                color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                style: {
+                  borderRadius: 16
+                },
+                propsForDots: {
+                  r: "6",
+                  strokeWidth: "2",
+                  stroke: "#ffa726"
+                }
+              }}
+
+              style={{
+                marginVertical: 8,
+                borderRadius: 16
+              }}
+            />
+
+           
         </Block>
       )
     }
@@ -83,14 +106,17 @@ export default class Profile extends React.Component {
     element: null,
     isLoading:true,
     empty:false,
+    username:"USER",
+    avatar:"https://www.cuhk.edu.hk/english/images/fav-icons/mstile-310x310.png",
 
   };
   onFocus = async () => {
     let asyncValue = await AsyncStorage.getItem('SleepData');
     if(asyncValue!=null){
-
+      
       this.setState({ empty:false});
     let data = JSON.parse(asyncValue);
+    //console.log(data);
     this.setState({ good: data['good'] });
     this.setState({ normal: data['normal'] });
     this.setState({ bad: data['bad'] });
@@ -100,11 +126,27 @@ export default class Profile extends React.Component {
   else {
     this.setState({ empty:true});
   }
+
 }
   componentDidMount() {
-
+    AsyncStorage.getItem('userName').then((token) => {
+      //console.log(token);
+      this.setState({username:token});
+    })
+    AsyncStorage.getItem('userAvatar').then((token) => {
+     // console.log(token);
+      fetch(token)
+    .then(res => {
+      //console.log(res.status);
+    if(res.status ==200 ){
+      this.setState({avatar:token});
+    }
+ })
+      
+    })
     AsyncStorage.getItem('SleepData').then((token) => {
       if (token){
+        //console.log(token);
         let data = JSON.parse(token)
       this.setState({ good: data['good'] });
       this.setState({ normal: data['normal'] });
@@ -118,6 +160,7 @@ export default class Profile extends React.Component {
     })
   }
   render() {
+    const { avatar } = this.state;
       var item1=[]
       
       if (this.state.empty){
@@ -167,7 +210,7 @@ export default class Profile extends React.Component {
             </Block>
             <Block style={{ paddingBottom: -HeaderHeight * 2 }}>
               <Block space="between" style={{ flexWrap: 'wrap' }} >
-                {addComponent(3, this.state.element)}
+                {addComponent( this.state.element)}
 
 
 
@@ -181,15 +224,15 @@ export default class Profile extends React.Component {
     return (
       
       <Block flex style={styles.profile}>
-        <NavigationEvents onDidFocus={console.log("")} onWillFocus={this.onFocus}/>
+        <NavigationEvents onDidFocus={null} onWillFocus={this.onFocus}/>
         <Block flex>
           <ImageBackground
-            source={{ uri: Images.Profile }}
+            source={avatar?{ uri:avatar }:""}
             style={styles.profileContainer}
             imageStyle={styles.profileImage}>
             <Block flex style={styles.profileDetails}>
               <Block style={styles.profileTexts}>
-                <Text color="purple" size={28} style={{ paddingBottom: 8 }}>John Doe</Text>
+                <Text color="purple" size={28} style={{ paddingBottom: 8 }}>{this.state.username}</Text>
                 <Block row space="between">
                   <Block row>
 
@@ -229,7 +272,6 @@ const styles = StyleSheet.create({
   product: {
     backgroundColor: theme.COLORS.WHITE,
     marginVertical: theme.SIZES.BASE,
-    borderWidth: 0.5,
     minHeight: 114,
 
 
@@ -265,8 +307,8 @@ const styles = StyleSheet.create({
   },
   options: {
     position: 'relative',
-    padding: theme.SIZES.BASE,
-    marginHorizontal: theme.SIZES.BASE,
+    padding: theme.SIZES.BASE-10,
+    marginHorizontal: theme.SIZES.BASE-10,
     marginTop: -theme.SIZES.BASE * 7,
     borderRadius: 13,
     backgroundColor: theme.COLORS.WHITE,
