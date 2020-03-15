@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Dimensions, ScrollView, View, Button, ActivityIndicator, Platform } from 'react-native';
+import { StyleSheet, Dimensions, ScrollView, View, Button, ActivityIndicator, Platform,FlatList } from 'react-native';
 import { Block, Text, theme } from 'galio-framework';
 import { Product } from '../components/';
 const { width } = Dimensions.get('screen');
@@ -10,55 +10,119 @@ import firestore, { firebase } from '@react-native-firebase/firestore';
 import BackgroundFetch from "react-native-background-fetch";
 import { stringToBytes } from 'convert-string';
 import NotifService from '../components/NotifService';
+import { array } from 'prop-types';
 const renderLight = (fetchArray) => {
-
-  var pushlist = []
+  
   if (fetchArray == null)
-    pushlist = [<Text size={16} key={"Auto0"} style={{ alignSelf: 'center', alignItems: 'center' }}>No Data. Go Settings to turn on Auto Detect.</Text>
-    ]
-  else
-    for (i = 0; i < fetchArray.length; i++) {
-      pushlist.push(<Product key={"AutoN" + i} product={fetchArray[i]} full />
-      )
-    }
-  return (
-    <ScrollView
-      showsVerticalScrollIndicator={false}
-      contentContainerStyle={styles.products}>
-      <Block flex>
-        {pushlist}
-      </Block>
-    </ScrollView>
-  )
+  {
+    return (
+      <Text size={16} key={"Auto0"} style={{ alignSelf: 'center', alignItems: 'center' }}>No Data. Go Settings to turn on Auto Detect.</Text>)
+    
+  }  
+  else{
+    return (
+      <FlatList
+      data={fetchArray}
+      renderItem={({ item }) => <Product key={item.date} product={item} full />}
+      keyExtractor={item => item.date}
+    />)
+  }
+
 }
 
 const renderNoise = (fetchArray) => {
 
-  var pushlist = []
+  var data =[{
+    maxlight: 123,
+    maxnoise: 70,
+    avglight:70,
+    avgnoise: 80,
+    temperature: '23.3',
+    humidity: '70',
+    lat: 22.3660775,
+    long: 114.1376905,
+    date: 1584190840000
+    },
+    {
+      maxlight: 123,
+    maxnoise: 70,
+    avglight:70,
+    avgnoise: 80,
+    temperature: '23.3',
+    humidity: '70',
+    lat: 22.3660775,
+    long: 114.1376905,
+    date: 1584190941000
+    },
+    {
+      maxlight: 123,
+    maxnoise: 70,
+    avglight:70,
+    avgnoise: 80,
+    temperature: '23.3',
+    humidity: '70',
+    lat: 22.3660775,
+    long: 114.1376905,
+    date: 1584200840300
+    },
+    {
+      maxlight: 123,
+    maxnoise: 70,
+    avglight:70,
+    avgnoise: 80,
+    temperature: '23.3',
+    humidity: '70',
+    lat: 22.3660775,
+    long: 114.1376905,
+    date: 1584200440000
+    },
+    {
+      maxlight: 123,
+    maxnoise: 70,
+    avglight:70,
+    avgnoise: 80,
+    temperature: '23.3',
+    humidity: '70',
+    lat: 22.3660775,
+    long: 114.1376905,
+    date: 1584200850000
+    },
+    {
+      maxlight: 123,
+    maxnoise: 70,
+    avglight:70,
+    avgnoise: 80,
+    temperature: '23.3',
+    humidity: '70',
+    lat: 22.3660775,
+    long: 114.1376905,
+    date: 1584200840600
+    }]
   if (fetchArray == null)
-    pushlist = [<Text size={16} key={"Ins0"} style={{ alignSelf: 'center', alignItems: 'center' }}>No Data. Click "Instant Measure" to start.</Text>,
-    <Button key={"Ins0Button"} title="restore" onPress={() => {
-      AsyncStorage.getItem('temp').then((token) => {
-        AsyncStorage.setItem('InsData', token);
-
-      });
-    }}></Button>,
-
-    ]
+   { 
+     return (
+      <Text size={16} key={"Ins0"} style={{ alignSelf: 'center', alignItems: 'center' }}>No Data. Click "Instant Measure" to start.</Text>
+     /* <Button key={"Ins0Button"} title="restore" onPress={() => {
+          console.log(data);
+        AsyncStorage.setItem('InsData', JSON.stringify(data) 
+        );
+  
+  
+    }}></Button>, */
+    
+     )
+   }
   else
-    for (i = 0; i < fetchArray.length; i++) {
-      pushlist.push(<Product key={"InsN" + i} product={fetchArray[i]} full />
-      )
-    }
+{   
   return (
-    <ScrollView
-      showsVerticalScrollIndicator={false}
-      contentContainerStyle={styles.products}>
-      <Block flex>
-        {pushlist}
-      </Block>
-    </ScrollView>
-  )
+    <FlatList
+    data={fetchArray}
+    renderItem={({ item }) => <Product key={item.date} product={item} full />}
+    keyExtractor={item => item.date}
+  />)
+ 
+}
+
 }
 
 
@@ -66,17 +130,13 @@ const renderNoise = (fetchArray) => {
 export default class Home extends React.Component {
   constructor() {
     super();
-
     this.notif = new NotifService(this.onRegister.bind(this), this.onNotif.bind(this));
   }
   onRegister(token) {
-    //Alert.alert("Registered !", JSON.stringify(token));
     console.log(token);
-    //this.setState({ registerToken: token.token, gcmRegistered: true });
   }
   onNotif(notif) {
     this.props.navigation.navigate('InsMeasure');
-    //Alert.alert(notif.title, notif.message);
   }
   state = {
     index: 0,
@@ -93,11 +153,11 @@ export default class Home extends React.Component {
 
   onFocus = async () => {
     let asyncValue = await AsyncStorage.getItem('InsData');
-
     let objFromAsyncValue = JSON.parse(asyncValue);
     this.setState({
       element: objFromAsyncValue
     })
+
     asyncValue = await AsyncStorage.getItem('AutoData');
     objFromAsyncValue = JSON.parse(asyncValue);
     this.setState({
@@ -108,12 +168,10 @@ export default class Home extends React.Component {
 
   componentDidMount() {
     AsyncStorage.getItem('Interval').then((token) => {
-    
       var interval= parseInt(token);
     AsyncStorage.getItem('Auto Decect').then((token) => {
 
       if (token == "true") {
-        console.log("haha");
          try{
           BackgroundFetch.configure({
             minimumFetchInterval: interval,
@@ -143,16 +201,12 @@ export default class Home extends React.Component {
             else {console.log("dummy");
             this.notif.localNotif("Connection Error: Please check the device connectivity at Instant Measure.")}
 
-
-
-
             // Remember to call finish()
             BackgroundFetch.finish(taskId);
           }, (error) => {
             console.log("[js] RNBackgroundFetch failed to start");
           });
-  
-  
+
           BackgroundFetch.status((status) => {
             switch (status) {
               case BackgroundFetch.STATUS_RESTRICTED:
@@ -217,7 +271,7 @@ export default class Home extends React.Component {
 
   FirstRoute = () => {
     return (
-      <Block flex center style={styles.home}>
+      <Block key={'InsBlock'} flex center style={styles.home}>
 
         {renderNoise(this.state.element)}
       </Block>
@@ -228,7 +282,7 @@ export default class Home extends React.Component {
 
   AutoRoute = () => {
     return (
-      <Block flex center style={styles.home}>
+      <Block key={'AutoBlcok'} flex center style={styles.home}>
 
         {renderLight(this.state.autoelement)}
       </Block>
@@ -265,8 +319,9 @@ export default class Home extends React.Component {
 
 
       [
-        <NavigationEvents onDidFocus={console.log('reload')} onWillFocus={this.onFocus} />,
+        <NavigationEvents key={'HomeNav'} onDidFocus={console.log('reload')} onWillFocus={this.onFocus} />,
         <TabView
+        key={'HomeTabView'}
           renderTabBar={this.renderTabBar}
           navigationState={this.state}
           renderScene={({ route }) => {

@@ -538,6 +538,7 @@ const styles = StyleSheet.create({
 
 let config = {
   clientId: '22BFMN',
+  prompt:'login consent',
   clientSecret: 'b33306de5862a2b913471c30aa2c9ffc',
   redirectUrl: 'lnmstry://sleeptracker', //note: path is required
   scopes: ['activity', 'sleep', 'profile', 'weight', 'heartrate'],

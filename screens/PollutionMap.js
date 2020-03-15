@@ -7,13 +7,14 @@ import { Marker, Callout, Heatmap } from 'react-native-maps';
 import * as Location from 'expo-location';
 import * as Permissions from 'expo-permissions';
 const { height, width } = Dimensions.get('screen');
-import firestore, { firebase } from '@react-native-firebase/firestore';
-const homePlace = { description: 'Home', geometry: { location: { lat: 22.368043, lng: 114.134825 } } };
+import firestore from '@react-native-firebase/firestore';
+
 
 
 export default class PollutionMap extends React.Component {
 
   state = {
+    marginBottom: 0,
     locationResult: 22.368043,
     locationResult2: 114.134825,
     region: {
@@ -105,14 +106,16 @@ export default class PollutionMap extends React.Component {
     return new Promise((resolve) => {
       this.setState(state, resolve)
     });
-}
+  }
   onRegionChange = async (region) => {
-   await this.setStateAsync({
-      region:region
+    await this.setStateAsync({
+      region: region
     })
+    console.log(region);
     let b = await this.getData(region.latitude, region.longitude, region.latitudeDelta, region.longitudeDelta);
+
     this.genMarker(b);
-    
+
   }
 
   getLevel = (db, lux) => {
@@ -123,7 +126,7 @@ export default class PollutionMap extends React.Component {
     else return 'green'
   }
   genMarker = (arrList) => {
-    
+
     var tempMaker = [];
     for (i = 0; i < arrList.length; i++) {
       tempMaker.push(
@@ -131,7 +134,7 @@ export default class PollutionMap extends React.Component {
           <Callout style={styles.plainView}>
             <View>
               <Text>Time: {arrList[i].date}</Text>
-              <Text>Temp: {arrList[i].temperature}°C Humidity: {arrList.humidity}%</Text>
+              <Text>Temp: {arrList[i].temperature}°C Humidity: {arrList[i].humidity}%</Text>
               <Text style={{ fontWeight: 'bold' }}>Noise Level: {arrList[i].maxnoise}dB </Text>
               <Text style={{ fontWeight: 'bold' }}>Light Level: {arrList[i].maxlight}lux</Text>
 
@@ -145,7 +148,7 @@ export default class PollutionMap extends React.Component {
     this.setState({ MarkerList: tempMaker });
 
   }
-
+  _onMapReady = () => {this.setState({ marginBottom: 44 }); }
   render() {
 
     return (
@@ -161,11 +164,11 @@ export default class PollutionMap extends React.Component {
             fetchDetails={true}
             renderDescription={row => row.description} // custom description render
             onPress={(data, details = null) => { // 'details' is provided when fetchDetails = true
-              
+
               this.setState({ region: { ...this.state.region, latitude: details['geometry']["location"]["lat"] } });
               this.setState({ region: { ...this.state.region, longitude: details['geometry']["location"]["lng"] } });
             }}
-            predefinedPlaces={[homePlace]}
+
             getDefaultValue={() => ''}
             query={{
               // available options: https://developers.google.com/places/web-service/autocomplete
@@ -181,7 +184,7 @@ export default class PollutionMap extends React.Component {
                 borderBottomWidth: 0
               },
               listView: {
-                backgroundColor: 'rgba(1.0,1.0,1.0,0.7)',
+                backgroundColor: 'rgba(1.0,1.0,1.0,0.67)',
 
               }
               ,
@@ -194,32 +197,26 @@ export default class PollutionMap extends React.Component {
             }}
 
           />
-          <View >
-
-            <Button onPress={() => this._getLocationAsync()} title="Current Location" />
-
-          </View>
-
-
-
 
         </View>
         <View>
-          <Block style={{ flex: 1 }} >
-
-            <MapView style={styles.map}
-              region={this.state.region}
-              onRegionChangeComplete={this.onRegionChange}
-
-            >
-              {this.state.MarkerList}
-
-              <Marker image={require('../assets/images/yrh.png')} coordinate={{ latitude: this.state.latC || -36.82339, longitude: this.state.longC || -73.03569 }} />
 
 
-            </MapView>
+          <MapView style={[styles.map, { marginTop: this.state.marginBottom }]}
 
-          </Block>
+onMapReady={this._onMapReady}
+            initialRegion={this.state.region}
+            onRegionChangeComplete={this.onRegionChange}
+            showsUserLocation={true}
+            showsMyLocationButton={true}
+          >
+            {this.state.MarkerList}
+
+
+
+
+          </MapView>
+
         </View>
       </View>
 
@@ -248,8 +245,9 @@ const styles = StyleSheet.create({
   map: {
     flex: 1,
     width: width,
-    height: 720,
-    position: "absolute"
+    marginTop: 44,
+    height: height * 0.95,
+    position: "absolute",
   },
   bottom: {
     flex: 1,

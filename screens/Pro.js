@@ -22,14 +22,14 @@ export default class Pro extends React.Component {
           <Text style={{fontSize:20,fontWeight :'bold'}}>LNMS is a system which can help you to improve your living quality.
                   
           </Text>
-          <Text  >By monitoring your noise exposure daily, this system can show how they affect your life.</Text>
+          <Text  >By monitoring your noise exposure daily, this system can show how they affect your life, especially your sleep.</Text>
           </Block>
         </Block>
      
         <Block row={horizontal} card flex style={[styles.product, styles.shadow]}>
           <Block flex space="between" style={styles.productDescription}>
             <Text style={{fontSize:20,fontWeight :'bold'}} >My Log</Text>
-            <Text >Here saves the records from "Instant Measure".</Text>
+            <Text >Here it saves the records from "Instant Measure" and "Auto Measure".</Text>
           </Block>
         </Block>
 
@@ -44,7 +44,7 @@ export default class Pro extends React.Component {
           <Block flex space="between" style={styles.productDescription}>
             <Text style={{fontSize:20,fontWeight :'bold'}} >Sleep Tracker</Text>
 
-            <Text >This function can be used alone or used with FitBit or Apple Watch to monitor your sleep.</Text>
+            <Text >This function can be used with FitBit to monitor your sleep.</Text>
             <Text></Text>
             <Text >Comparing the data from the watch and the light and noise sensor to analyse the result.</Text>
             <Text></Text>
@@ -59,13 +59,13 @@ export default class Pro extends React.Component {
 light and noise level at different places. </Text>
 <Text></Text>
           <Text>Using color pin to indicate pollution level,
-red as serious, yellow as moderate and green as low.</Text>
+red as severe, yellow as moderate and green as low.</Text>
           </Block>
         </Block>
         <Block row={horizontal} card flex style={[styles.product, styles.shadow]}>
           <Block flex space="between" style={styles.productDescription}>
             <Text style={{fontSize:20,fontWeight :'bold'}} >My Sleep History</Text>
-            <Text >Here saves the sleep history of user</Text>
+            <Text >Here it saves the sleep history of user</Text>
           </Block>
         </Block>
         <Block row={horizontal} card flex >

@@ -281,7 +281,7 @@ export default class InsMeasure extends React.Component {
       if (current_data != null) {
         current_data = await JSON.parse(current_data);
         // console.log("this is cuur",current_data);
-        current_data.push(outputData);
+        current_data.unshift(outputData);
         await AsyncStorage.setItem(key, JSON.stringify(current_data));
       }
       else
@@ -558,12 +558,12 @@ export default class InsMeasure extends React.Component {
   renderHeader = () => {
     return (
       <View style={{ marginTop: 20 }}>
-        <TouchableOpacity
+        {/*<TouchableOpacity
           activeOpacity={0.7}
           style={[styles.buttonView, { marginHorizontal: 10, height: 40, alignItems: 'center' }]}
           onPress={this.restoreItem}>
-          <Text style={styles.buttonText}>Debug(Get Async Stroage)</Text>
-        </TouchableOpacity>
+        <Text style={styles.buttonText}>Debug(Get Async Stroage)</Text>
+        </TouchableOpacity>*/}
         <TouchableOpacity
           activeOpacity={0.7}
           style={[styles.buttonView, { marginHorizontal: 10, height: 40, alignItems: 'center' }]}

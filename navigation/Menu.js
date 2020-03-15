@@ -10,9 +10,36 @@ const { width } = Dimensions.get('screen');
 
 
 async function asyncSetProfile(){
-  profile.avatar=await AsyncStorage.getItem("userAvatar");
+  AsyncStorage.getItem('SleepData').then((token) => {
+    if (token) {
+      let data=JSON.parse(token);
+      console.log(token);
+      var total =data['good']+data['normal']+data['bad'];
+      if (total!=0)
+     profile.rating=((data['good']*5.0+data['normal']*3.0+data['bad']*1.0)/total).toFixed(1);
+
+    }
+  })
+  AsyncStorage.getItem('userAvatar').then((token) => {
+    if (token) {
+      profile.avatar=token;
+    }
+  })
+  AsyncStorage.getItem('userName').then((token) => {
+    if (token) {
+      profile.name=token
+    }
+  })
+  AsyncStorage.getItem('userGender').then((token) => {
+    if (token) {
+      profile.type=token
+    }
+  })
+ /* profile.avatar=await AsyncStorage.getItem("userAvatar");
   profile.name=await AsyncStorage.getItem("userName");
-  profile.type= await AsyncStorage.getItem("userGender");
+  profile.type= await AsyncStorage.getItem("userGender");*/
+
+  
 }
 
 asyncSetProfile();
@@ -48,8 +75,8 @@ let profile = {
   avatar: Images.Profile,
   name: 'FYP',
   type: 'KSL1901',
-  plan: 'FYP',
-  rating: 4.8
+  plan: 'SEX',
+  rating: 'N/A'
 };
 
 const Menu = {

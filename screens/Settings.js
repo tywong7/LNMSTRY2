@@ -75,16 +75,18 @@ export default class Settings extends React.Component{
               maximumValue={120}
               minimumTrackTintColor="#FFFFFF"
               maximumTrackTintColor="#800080"
+              thumbTintColor="#800080"
               value={this.state.Interval}
               onValueChange={value=>{
         
-
-                this.setState({Interval:parseInt(value)});
+    
+                this.setState({Interval:Math.floor(value)})
+              
 
                 
               }}
               onSlidingComplete={value => {
-                AsyncStorage.setItem('Interval',JSON.stringify(parseInt(value)));
+                AsyncStorage.setItem('Interval',JSON.stringify(Math.floor(value)));
                 
               }
               
@@ -251,8 +253,6 @@ export default class Settings extends React.Component{
 
     return (
       <View  style={styles.settings}>
-        <Button title="fuckyou2" onPress={this.testAdd}></Button>
-        <Button title="fuckyou" onPress={this.test}></Button>
         <FlatList
           data={recommended}
           keyExtractor={(item, index) => item.id}

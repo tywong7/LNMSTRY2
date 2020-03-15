@@ -87,171 +87,7 @@ class ExpandableItemComponent extends Component {
   }
 }
 
-function pushArray(index, list) {
-  Aarray = [];
-  const data = [
-    {
-      name: "Seoul",
-      population: 21500000,
-      color: "rgba(131, 167, 234, 1)",
-      legendFontColor: "#7F7F7F",
-      legendFontSize: 15
-    },
-    {
-      name: "Toronto",
-      population: 2800000,
-      color: "#F00",
-      legendFontColor: "#7F7F7F",
-      legendFontSize: 15
-    },
-    {
-      name: "Beijing",
-      population: 527612,
-      color: "red",
-      legendFontColor: "#7F7F7F",
-      legendFontSize: 15
-    },
-    {
-      name: "New York",
-      population: 8538000,
-      color: "#ffffff",
-      legendFontColor: "#7F7F7F",
-      legendFontSize: 15
-    },
-    {
-      name: "Moscow",
-      population: 11920000,
-      color: "rgb(0, 0, 255)",
-      legendFontColor: "#7F7F7F",
-      legendFontSize: 15
-    }
-  ];
-  if (list != null) {
 
-    //console.log("94",list.ratio);
-    Aarray.push(
-      <Block key={index} card width={Dimensions.get('window').width - 30} shadow shadowColor='#000000' style={styles.product}>
-        <Text size={16}> Time: {list.Hour}  </Text>
-        <Text size={16}> Total: {list.AcutalSleep}</Text>
-        <Text size={16}> Quality: {list.Quality+list.DetailQ}</Text>
-        <Text size={16}> Efficiency: {list.Efficiency} </Text>
-        <Text size={16}> {list.maxavg}</Text>
-      </Block>,
-      <LineChart
-      bezier
-      withDots={false}
-      withShadow={false}
-      withInnerLines={false}
-      withOuterLines={false}
-      width={Dimensions.get('window').width -30}
-      height={220}
-      data={{
-        labels: list.label,
-        legend: ["Sleep Stage", "Light", "Noise"],
-        datasets: [
-
-          {
-            data: list.SleepValue,
-
-            color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`
-          },
-          {
-            data:list.LightValue,
-            color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})`
-          },
-          {
-            data:list.NoiseValue,
-
-            color: (opacity = 1) => `rgba(255, 237, 0, ${opacity})`
-          }
-
-        ]
-      }
-    }
- // from react-nativ
-      verticalLabelRotation={0}
-      // optional, defaults to 1
-
-      chartConfig={{
-        backgroundColor: "#000000",
-        backgroundGradientFrom: "#000000",
-        backgroundGradientTo: "#000000",
-        decimalPlaces: 0, // optional, defaults to 2dp
-        color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-        labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-        style: {
-          borderRadius: 16
-        },
-        propsForDots: {
-          r: "6",
-          strokeWidth: "2",
-          stroke: "#ffa726"
-        }
-      }}
-
-      style={{
-        marginHorizontal:16,
-        marginVertical: 8,
-        borderRadius: 16
-      }}
-    />,
-    <PieChart
-    data={[
-      {
-        name: "Deep(" + list.ratio[0] + " mins)",
-        population: list.ratio[0],
-        color: "#154BA6",
-        legendFontColor: "#7F7F7F",
-        legendFontSize: 12
-      },
-      {
-        name: "Light(" + list.ratio[1] + " mins)",
-        population: list.ratio[1],
-        color: "#3F8DFF",
-        legendFontColor: "#7F7F7F",
-        legendFontSize: 12
-      },
-      {
-        name: "Rem(" + list.ratio[2] + " mins)",
-        population: list.ratio[2],
-        color: "#7EC4FF",
-        legendFontColor: "#7F7F7F",
-        legendFontSize: 12
-      },
-      {
-        name: "Awake(" + list.ratio[3] + " mins)",
-        population: list.ratio[3],
-        color: "#E73360",
-        legendFontColor: "#7F7F7F",
-        legendFontSize: 12
-      }
-    ]}
-    chartConfig={{
-   
-      decimalPlaces: 0, // optional, defaults to 2dp
-      color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-      labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-    }}
-    style={{
-      borderRadius: 16,
-      marginLeft:16,
-      alignSelf:'center',
-    }
-
-    }
-    width={Dimensions.get('window').width*0.97}
-    height={220}
-    accessor="population"
-    backgroundColor="#201842"
-
-
-  />
-      );
-
-  }
-
-  return Aarray;
-}
 export default class ViewAllScreen extends Component {
   //Main View defined under this Class
   constructor(props) {
@@ -283,6 +119,138 @@ export default class ViewAllScreen extends Component {
     }
 
   }
+
+pushArray= (index, list) => {
+    Aarray = [];
+
+    if (list != null) {
+      Aarray.push(
+
+        <Block key={index} card width={Dimensions.get('window').width - 30} shadow shadowColor='#000000' style={styles.product}>
+          <Text size={16}> Time: {list.Hour}  </Text>
+          <Text size={16}> Total: {list.AcutalSleep}</Text>
+          <Text size={16}> Quality: {list.Quality+list.DetailQ}</Text>
+          <Text size={16}> Efficiency: {list.Efficiency} </Text>
+          <Text size={16}> {list.maxavg}</Text>
+        </Block>,
+        <LineChart
+        key={'line'+index}
+        bezier
+        withDots={false}
+        withShadow={false}
+        withInnerLines={false}
+        withOuterLines={false}
+        width={Dimensions.get('window').width -30}
+        height={Dimensions.get('window').height*0.32}
+        data={{
+          labels: list.label,
+          legend: ["Sleep Stage", "Light", "Noise"],
+          datasets: [
+  
+            {
+              data: list.SleepValue,
+  
+              color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`
+            },
+            {
+              data:list.LightValue,
+              color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})`
+            },
+            {
+              data:list.NoiseValue,
+  
+              color: (opacity = 1) => `rgba(255, 237, 0, ${opacity})`
+            }
+  
+          ]
+        }
+      }
+   // from react-nativ
+        verticalLabelRotation={0}
+        // optional, defaults to 1
+  
+        chartConfig={{
+          backgroundColor: "#000000",
+          backgroundGradientFrom: "#000000",
+          backgroundGradientTo: "#000000",
+          decimalPlaces: 0, // optional, defaults to 2dp
+          color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+          labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+          style: {
+            borderRadius: 16
+          },
+          propsForDots: {
+            r: "6",
+            strokeWidth: "2",
+            stroke: "#ffa726"
+          }
+        }}
+  
+        style={{
+          marginHorizontal:16,
+          marginVertical: 8,
+          borderRadius: 16
+        }}
+      />,
+      <PieChart
+      key={'pie'+index}
+      data={[
+        {
+          name: "Deep(" + list.ratio[0] + " mins)",
+          population: list.ratio[0],
+          color: "#154BA6",
+          legendFontColor: "#7F7F7F",
+          legendFontSize: 12
+        },
+        {
+          name: "Light(" + list.ratio[1] + " mins)",
+          population: list.ratio[1],
+          color: "#3F8DFF",
+          legendFontColor: "#7F7F7F",
+          legendFontSize: 12
+        },
+        {
+          name: "Rem(" + list.ratio[2] + " mins)",
+          population: list.ratio[2],
+          color: "#7EC4FF",
+          legendFontColor: "#7F7F7F",
+          legendFontSize: 12
+        },
+        {
+          name: "Awake(" + list.ratio[3] + " mins)",
+          population: list.ratio[3],
+          color: "#E73360",
+          legendFontColor: "#7F7F7F",
+          legendFontSize: 12
+        }
+      ]}
+      chartConfig={{
+     
+        decimalPlaces: 0, // optional, defaults to 2dp
+        color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+        labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+      }}
+      style={{
+        borderRadius: 16,
+        marginLeft:16,
+        alignSelf:'center',
+      }
+  
+      }
+      width={Dimensions.get('window').width*0.97}
+      height={Dimensions.get('window').height*0.30}
+      accessor="population"
+      backgroundColor="#201842"
+  
+  
+    />
+        );
+  
+    }
+  
+    return Aarray;
+  }
+
   onFocus = async () => {
     AsyncStorage.getItem('SleepData').then((token) => {
       if (token) {
@@ -360,7 +328,9 @@ export default class ViewAllScreen extends Component {
 
 
     if (!array[index]['isRendered']) {
-      array[index]["subcategory"][0]["val"] = pushArray(index, this.state.ele[index]);
+  
+      array[index]["subcategory"][0]["val"] = this.pushArray(index, this.state.ele[index]);
+      console.log(366,this.state.ele[index]);
       array[index]['isRendered'] = true;
 
     }
@@ -436,7 +406,8 @@ getQuality=async (index)=>{
   render() {
     if (this.state.listDataSource.length > 0){
       ele_to_add=[
-      <ScrollView>
+      <ScrollView key={'bigbigView'}>
+      
       {this.state.listDataSource.map((item, key) => (
         <ExpandableItemComponent
           key={item.category_name + key}
@@ -452,7 +423,7 @@ getQuality=async (index)=>{
       date=this.state.tempSoucr[0]['category_name'].replace(/\//g, '-');
     }
     else {
-      ele_to_add=[<View style={{ alignItems: 'center' }}>
+      ele_to_add=[<View key={'viewempty'} style={{ alignItems: 'center' }}>
    
       <Text size={20}>No Sleep Record.</Text></View>]
       date=this.state.allData[0]['category_name'].replace(/\//g, '-');

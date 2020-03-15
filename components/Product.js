@@ -321,6 +321,9 @@ const styles = StyleSheet.create({
     marginVertical: theme.SIZES.BASE,
     borderWidth: 0,
     minHeight: 114,
+    alignItems:'center',
+    padding:5,
+    margin:8,
   },
   map: {
     backgroundColor: theme.COLORS.WHITE,
@@ -353,7 +356,8 @@ const styles = StyleSheet.create({
     height: 215,
     width: width - theme.SIZES.BASE * 3,
     alignContent: 'center',
-    marginLeft: 10,
+    marginLeft: 4,
+    marginRight:4,
     marginTop: 3
 
   },

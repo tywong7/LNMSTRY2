@@ -18,6 +18,7 @@
 		8CCF6AC3A02C4F5BB19EEF66 /* TSBackgroundFetch.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6B82C5F50E00423AAD020BD3 /* TSBackgroundFetch.framework */; };
 		693A8FDEE31D4CD4B79C60E1 /* TSBackgroundFetch.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EA3A6A9558EC4EC8A7601A15 /* TSBackgroundFetch.framework */; };
 		26CEA4D802E24F2EB62F862E /* TSBackgroundFetch.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3243A1132AA84D0A9278F1A7 /* TSBackgroundFetch.framework */; };
+		25014F7763C64C8D91369DAC /* TSBackgroundFetch.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 429A2EC48AFA46A8904FF5E7 /* TSBackgroundFetch.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -76,6 +77,7 @@
 		6B82C5F50E00423AAD020BD3 /* TSBackgroundFetch.framework */ = {isa = PBXFileReference; name = "TSBackgroundFetch.framework"; path = "../node_modules/react-native-background-fetch/ios/RNBackgroundFetch/TSBackgroundFetch.framework"; sourceTree = SDKROOT; fileEncoding = undefined; lastKnownFileType = wrapper.framework; explicitFileType = undefined; includeInIndex = 0; };
 		EA3A6A9558EC4EC8A7601A15 /* TSBackgroundFetch.framework */ = {isa = PBXFileReference; name = "TSBackgroundFetch.framework"; path = "../node_modules/react-native-background-fetch/ios/RNBackgroundFetch/TSBackgroundFetch.framework"; sourceTree = SDKROOT; fileEncoding = undefined; lastKnownFileType = wrapper.framework; explicitFileType = undefined; includeInIndex = 0; };
 		3243A1132AA84D0A9278F1A7 /* TSBackgroundFetch.framework */ = {isa = PBXFileReference; name = "TSBackgroundFetch.framework"; path = "../node_modules/react-native-background-fetch/ios/RNBackgroundFetch/TSBackgroundFetch.framework"; sourceTree = SDKROOT; fileEncoding = undefined; lastKnownFileType = wrapper.framework; explicitFileType = undefined; includeInIndex = 0; };
+		429A2EC48AFA46A8904FF5E7 /* TSBackgroundFetch.framework */ = {isa = PBXFileReference; name = "TSBackgroundFetch.framework"; path = "../node_modules/react-native-background-fetch/ios/RNBackgroundFetch/TSBackgroundFetch.framework"; sourceTree = SDKROOT; fileEncoding = undefined; lastKnownFileType = wrapper.framework; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -89,6 +91,7 @@
 				8CCF6AC3A02C4F5BB19EEF66 /* TSBackgroundFetch.framework in Frameworks */,
 				693A8FDEE31D4CD4B79C60E1 /* TSBackgroundFetch.framework in Frameworks */,
 				26CEA4D802E24F2EB62F862E /* TSBackgroundFetch.framework in Frameworks */,
+				25014F7763C64C8D91369DAC /* TSBackgroundFetch.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -131,6 +134,7 @@
 				6B82C5F50E00423AAD020BD3 /* TSBackgroundFetch.framework */,
 				EA3A6A9558EC4EC8A7601A15 /* TSBackgroundFetch.framework */,
 				3243A1132AA84D0A9278F1A7 /* TSBackgroundFetch.framework */,
+				429A2EC48AFA46A8904FF5E7 /* TSBackgroundFetch.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
