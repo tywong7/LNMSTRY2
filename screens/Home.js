@@ -1,16 +1,15 @@
 import React from 'react';
-import { StyleSheet, Dimensions, ScrollView, View, Button, ActivityIndicator, Platform,FlatList } from 'react-native';
+import { StyleSheet, Dimensions,View, ActivityIndicator, Platform,FlatList } from 'react-native';
 import { Block, Text, theme } from 'galio-framework';
 import { Product } from '../components/';
 const { width } = Dimensions.get('screen');
 import { TabView, TabBar } from 'react-native-tab-view';
 import AsyncStorage from '@react-native-community/async-storage';
 import { NavigationEvents } from 'react-navigation';
-import firestore, { firebase } from '@react-native-firebase/firestore';
 import BackgroundFetch from "react-native-background-fetch";
 import { stringToBytes } from 'convert-string';
 import NotifService from '../components/NotifService';
-import { array } from 'prop-types';
+
 const renderLight = (fetchArray) => {
   
   if (fetchArray == null)
@@ -32,83 +31,13 @@ const renderLight = (fetchArray) => {
 
 const renderNoise = (fetchArray) => {
 
-  var data =[{
-    maxlight: 123,
-    maxnoise: 70,
-    avglight:70,
-    avgnoise: 80,
-    temperature: '23.3',
-    humidity: '70',
-    lat: 22.3660775,
-    long: 114.1376905,
-    date: 1584190840000
-    },
-    {
-      maxlight: 123,
-    maxnoise: 70,
-    avglight:70,
-    avgnoise: 80,
-    temperature: '23.3',
-    humidity: '70',
-    lat: 22.3660775,
-    long: 114.1376905,
-    date: 1584190941000
-    },
-    {
-      maxlight: 123,
-    maxnoise: 70,
-    avglight:70,
-    avgnoise: 80,
-    temperature: '23.3',
-    humidity: '70',
-    lat: 22.3660775,
-    long: 114.1376905,
-    date: 1584200840300
-    },
-    {
-      maxlight: 123,
-    maxnoise: 70,
-    avglight:70,
-    avgnoise: 80,
-    temperature: '23.3',
-    humidity: '70',
-    lat: 22.3660775,
-    long: 114.1376905,
-    date: 1584200440000
-    },
-    {
-      maxlight: 123,
-    maxnoise: 70,
-    avglight:70,
-    avgnoise: 80,
-    temperature: '23.3',
-    humidity: '70',
-    lat: 22.3660775,
-    long: 114.1376905,
-    date: 1584200850000
-    },
-    {
-      maxlight: 123,
-    maxnoise: 70,
-    avglight:70,
-    avgnoise: 80,
-    temperature: '23.3',
-    humidity: '70',
-    lat: 22.3660775,
-    long: 114.1376905,
-    date: 1584200840600
-    }]
+
   if (fetchArray == null)
    { 
      return (
-      <Text size={16} key={"Ins0"} style={{ alignSelf: 'center', alignItems: 'center' }}>No Data. Click "Instant Measure" to start.</Text>
-     /* <Button key={"Ins0Button"} title="restore" onPress={() => {
-          console.log(data);
-        AsyncStorage.setItem('InsData', JSON.stringify(data) 
-        );
-  
-  
-    }}></Button>, */
+      <Text size={16} key={"Ins0"} style={{ alignSelf: 'center', alignItems: 'center' }}>
+        No Data. Click "Instant Measure" to start.
+      </Text>
     
      )
    }
@@ -125,12 +54,12 @@ const renderNoise = (fetchArray) => {
 
 }
 
-
-
 export default class Home extends React.Component {
   constructor() {
     super();
     this.notif = new NotifService(this.onRegister.bind(this), this.onNotif.bind(this));
+
+
   }
   onRegister(token) {
     console.log(token);
@@ -186,7 +115,7 @@ export default class Home extends React.Component {
             if (global.BluetoothManager.isConnected)
             global.BluetoothManager.startNotification(0)
             .then(() => {
-              global.BluetoothManager.write(stringToBytes('201'), 1)
+              global.BluetoothManager.write(stringToBytes('aa'), 1)
                 .then(() => {
                 })
                 .catch(err => {

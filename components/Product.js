@@ -298,7 +298,7 @@ class Product extends React.Component {
         <Block flex space="between" style={styles.productDescription}>
             <Text size={14} style={styles.productTitle}>Peak: {product.maxlight}lux {product.maxnoise}dB      Avearge: {product.avglight}lux {product.avgnoise}dB</Text>
             <Text size={12} style={{ fontWeight: 'bold'}} color={priceColor}>Time: {product.date}</Text>
-            <Text size={12} style={{ fontWeight: 'bold'}} color={priceColor}>Temperature: {product.temperature}°C      Humidity: {product.humidity}%</Text>
+            <Text size={12} style={{ fontWeight: 'bold'}} color={priceColor}>R: {product.r} G: {product.g} B: {product.b} Temperature: {product.temperature}°C Humidity: {product.humidity}%</Text>
             <Text size={12} style={{ fontWeight: 'bold'}} color={priceColor}>
               {
                 this.state.element

@@ -11,7 +11,7 @@ export default class Settings extends React.Component{
   state = {
     Auto:false,
     Notify:false,
-    Interval:1,
+    Interval:15,
   };
 
   constructor() {

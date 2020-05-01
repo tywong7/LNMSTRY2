@@ -22,10 +22,13 @@ import firestore, { firebase } from '@react-native-firebase/firestore';
 import NotifService from '../components/NotifService';
 global.BluetoothManager = new BleModule();
 var key = 'InsData';
+var tempJson = "";
+var isSleep = false;
 export default class InsMeasure extends React.Component {
   constructor(props) {
     super(props);
     this.notif = new NotifService(this.onNotif.bind(this));
+
     this.state = {
       data: [],
       scaning: false,
@@ -35,24 +38,23 @@ export default class InsMeasure extends React.Component {
       receiveData: '',
       readData: '',
       isMonitoring: false,
-      lable: [0], light: [0], noise: [0],
+      lable: [0], light: [0], noise: [0], r: [0], g: [0], b: [0],
       lat: 0,
       long: 0,
       temp: '---',
       humid: '---',
       addr: '---',
-      notify:false,
+      notify: false,
+      isSet: false,
     }
     this.bluetoothReceiveData = [];  //蓝牙接收的数据缓存
     this.deviceMap = new Map();
 
   }
   onNotif(notif) {
-    //console.log(notif);
-    //Alert.alert(notif.title, notif.message);
+    this.props.navigation.navigate('Home');
   }
   componentDidMount() {
-
     BluetoothManager.start();  //蓝牙初始化     	    
     this.updateStateListener = BluetoothManager.addListener('BleManagerDidUpdateState', this.handleUpdateState);
     this.stopScanListener = BluetoothManager.addListener('BleManagerStopScan', this.handleStopScan);
@@ -60,6 +62,7 @@ export default class InsMeasure extends React.Component {
     this.connectPeripheralListener = BluetoothManager.addListener('BleManagerConnectPeripheral', this.handleConnectPeripheral);
     this.disconnectPeripheralListener = BluetoothManager.addListener('BleManagerDisconnectPeripheral', this.handleDisconnectPeripheral);
     this.updateValueListener = BluetoothManager.addListener('BleManagerDidUpdateValueForCharacteristic', this.handleUpdateValue);
+    //this._getLocationAsync();
   }
 
   componentWillUnmount() {
@@ -77,31 +80,13 @@ export default class InsMeasure extends React.Component {
 
   restoreItem = async () => {
     let storedItem = {};
-    //console.log("start 62");
 
     try {
       const saved = await AsyncStorage.getItem(key);
 
-      /*var  outputData= {
-        maxlight: 47,
-        maxnoise: 80,
-        avglight: 26,
-        avgnoise: 99,
-        temperature: 26.8,
-        humidity: 75,
-        lat:25.0650704,
-        long:121.4969846,
-        date:new Date().toLocaleString("en"),
-      }
-      var current_data = await AsyncStorage.getItem(key);
-      current_data= await JSON.parse(current_data);
-      // console.log("this is cuur",current_data);
-      current_data.push(outputData);
-      await AsyncStorage.setItem(key, JSON.stringify(current_data))*/
       console.log("what is save?", saved);
       storedItem = await JSON.parse(saved);
 
-      //console.log("done");
 
     } catch (e) {
       await AsyncStorage.removeItem(key);
@@ -138,12 +123,11 @@ export default class InsMeasure extends React.Component {
       macAddress = data.id;
       id = macAddress;
     } else {
-      //ios连接时不需要用到Mac地址，但跨平台识别同一设备时需要Mac地址
-      //如果广播携带有Mac地址，ios可通过广播0x18获取蓝牙Mac地址，
+
       macAddress = BluetoothManager.getMacAddressFromIOS(data);
       id = data.id;
     }
-    this.deviceMap.set(data.id, data);  //使用Map类型保存搜索到的蓝牙设备，确保列表不显示重复的设备
+    this.deviceMap.set(data.id, data);
     this.setState({ data: [...this.deviceMap.values()] });
   }
 
@@ -151,7 +135,7 @@ export default class InsMeasure extends React.Component {
   handleConnectPeripheral = async (args) => {
     await Permissions.askAsync(Permissions.LOCATION);
     await Location.getCurrentPositionAsync({ enableHighAccuracy: true });
-    
+
     console.log('BleManagerConnectPeripheral:', args);
   }
 
@@ -172,91 +156,104 @@ export default class InsMeasure extends React.Component {
 
   parseData = (input) => {
     var datasplit = input.split(",");
-    this.state.light.push(parseInt(datasplit[0]));
-    this.state.noise.push(parseInt(datasplit[1]));
+
+    this.state.light.push(parseFloat(datasplit[7]));
+    this.state.noise.push(parseFloat(datasplit[8]));
+    this.state.r.push(parseInt(datasplit[2]));
+    this.state.g.push(parseInt(datasplit[3]));
+    this.state.b.push(parseInt(datasplit[4]));
 
     this.state.lable.push(this.state.light.length - 1);
+
     this.setState({ light: this.state.light });
     this.setState({ noise: this.state.noise });
+    this.setState({ r: this.state.r });
+    this.setState({ g: this.state.g });
+    this.setState({ b: this.state.b });
+
     this.setState({ lable: this.state.lable });
     if (this.state.temp == '---')
-      this.setState({ temp: datasplit[2] });
+      this.setState({ temp: datasplit[5] });
     if (this.state.humid == '---')
-      this.setState({ humid: datasplit[3] });
+      this.setState({ humid: datasplit[6] });
 
   }
   average = arr => arr.reduce((p, c) => p + c, 0) / (arr.length - 1);
   toTimestamp = (strDate) => {
     var datum = Date.parse(strDate);
- 
+
     return datum / 1000;
   }
-  sendNotiOrWarn= (light,noise,key)=>{
-    console.log(195,this.state.notify);
-    if (!this.state.notify&&key=="AutoData")
+  sendNotiOrWarn = (light, noise, key) => {
+    // console.log(195,this.state.notify);
+    if (!this.state.notify && key == "AutoData")
       return;
 
-    var msg="";
-    var type=0;
-    if (noise >= 75 || light>= 1500)  //strong
+    var msg = "";
+    var type = 0;
+    if (noise >= 75 || light >= 1500)  //strong
     {
-      type=1;
-      if (noise >= 75 && light>= 1500) //2 2
-        msg="You are under severe light and noise exposure.";
-      else if (noise >= 75 && light>= 500) //2 1
-        msg="You are under moderate light and severe noise exposure.";
-      else if (noise >= 55 && light>= 1500) // 1 2
-        msg="You are under moderate noise and severe light exposure.";
+      type = 1;
+      if (noise >= 75 && light >= 1500) //2 2
+        msg = "You are under severe light and noise exposure.";
+      else if (noise >= 75 && light >= 500) //2 1
+        msg = "You are under moderate light and severe noise exposure.";
+      else if (noise >= 55 && light >= 1500) // 1 2
+        msg = "You are under moderate noise and severe light exposure.";
       else if (noise >= 75) // 2 0
-        msg="You are under severe noise exposure.";
+        msg = "You are under severe noise exposure.";
       else if (light >= 1500) // 0 2
-        msg="You are under severe light exposure.";
+        msg = "You are under severe light exposure.";
 
     }
     else if (noise >= 55 || light >= 500)  //moderate
     {
       if (noise >= 55 && light >= 500) //1 1
-        msg="You are under moderate light and noise exposure.";
-      else if (noisee >= 55 ) //1 0
-        msg="You are under moderate noise exposure.";
-      else if (light >= 500 ) //1 1
-        msg="You are under moderate light exposure.";
+        msg = "You are under moderate light and noise exposure.";
+      else if (noise >= 55) //1 0ex
+        msg = "You are under moderate noise exposure.";
+      else if (light >= 500) //1 1
+        msg = "You are under moderate light exposure.";
     }
-    var value="("+light+"lux "+noise+"dB"+")"
-    if (msg.length>0)
-      {
-        if (key=="InsData" )
-        {
+    var value = "(" + light + "lux " + noise + "dB" + ")"
+    if (msg.length > 0) {
+      if (key == "InsData") {
         Alert.alert('Done: ', msg, [{ text: 'OK', onPress: () => { } }]);
-        }
-        else {
-          this.notif.localNotif(msg+value,type);
-        }
-     
       }
-    else if(key=="InsData")
+      else {
+        this.notif.localNotif(msg + value, type);
+      }
+
+    }
+    else if (key == "InsData")
       Alert.alert('Done: ', "Light and noise level of now is safe.", [{ text: 'OK', onPress: () => { } }]);
 
 
-    
+
   }
   passData = async (key) => {
     try {
-     await this._getLocationAsync();
-     await AsyncStorage.getItem('Notify').then((token) => { 
-      console.log(497,token);
-      if (token=="true"){
-        this.setState({notify:true});
-        
-    } else this.setState({notify:false});
-  });
+      console.log(this.state.lat, this.state.long);
+      await AsyncStorage.getItem('Notify').then((token) => {
+        console.log(497, token);
+        if (token == "true") {
+          this.setState({ notify: true });
+
+        } else this.setState({ notify: false });
+      });
     }
-    catch{ console.log("no location") };
+    catch{
+      console.log("no location")
+    };
+
     var outputData = {
-      maxlight: Math.max.apply(Math, this.state.noise),
-      maxnoise: Math.max.apply(Math, this.state.light),
-      avglight: Math.round(this.average(this.state.noise)),
-      avgnoise: Math.round(this.average(this.state.light)),
+      maxlight: Math.max.apply(Math, this.state.light),
+      maxnoise: Math.max.apply(Math, this.state.noise),
+      avglight: Math.round(this.average(this.state.light)),
+      avgnoise: Math.round(this.average(this.state.noise)),
+      r: Math.round(this.average(this.state.r)),
+      g: Math.round(this.average(this.state.g)),
+      b: Math.round(this.average(this.state.b)),
       temperature: this.state.temp,
       humidity: this.state.humid,
       lat: this.state.lat,
@@ -270,6 +267,9 @@ export default class InsMeasure extends React.Component {
       maxnoise: outputData.maxnoise,
       avglight: outputData.avglight,
       avgnoise: outputData.avgnoise,
+      r: outputData.r,
+      g: outputData.g,
+      b: outputData.b,
       temperature: outputData.temperature,
       humidity: outputData.humidity,
       lat: outputData.lat,
@@ -288,9 +288,11 @@ export default class InsMeasure extends React.Component {
         await AsyncStorage.setItem(key, "[" + JSON.stringify(outputData) + "]");
       //console.log(outputData.avgnoise);
 
-     this.sendNotiOrWarn(outputData.avglight,outputData.avgnoise,key);
-      if (key == 'AutoData')
-        this.resetBody();
+      this.sendNotiOrWarn(outputData.avglight, outputData.avgnoise, key);
+
+
+      this.resetBody()
+
       console.log('done');
     }
     catch (e) {
@@ -299,33 +301,52 @@ export default class InsMeasure extends React.Component {
 
     }
   }
+  
   handleUpdateValue = async (data) => {
     //ios接收到的是小写的16进制，android接收的是大写的16进制，统一转化为大写16进制
     let value = data.value;
     var tempStr = "";
-
+ 
     //this.bluetoothReceiveData.push(value);
     value.forEach(element => {
+
       tempStr = tempStr + String.fromCharCode(element);
 
     });
-    if (tempStr == 'end' || tempStr == 'aend') {
-
-
-      try {
-        if (tempStr == 'aend') {
-          this.passData('AutoData');
-        }
-        else this.passData('InsData');
-
-      } catch (e) {
-        console.warn(e);
-      }
-      this.offnotify();
-
+    if (tempStr == '"send"') {
+      //console.log("hey",tempJson);
+     var outJSON= JSON.parse("["+tempJson.slice(0, -1)+"]");
+     AsyncStorage.setItem("DailySleep", outJSON);
+      isSleep=false;
     }
     else
-      this.parseData(tempStr);
+    if (tempStr == '"sleep",') {
+      isSleep = true;
+    }
+    else if (isSleep==true){
+      tempJson=tempJson+tempStr;
+    }
+    else
+      if (tempStr == 'end' || tempStr == 'aend') {
+
+        this.setState({ isSet: false });
+        console.log("mystr2:", this.state.lat, this.state.long);
+        try {
+          if (tempStr == 'aend') {
+            this.passData('AutoData');
+          }
+          else this.passData('InsData');
+
+        } catch (e) {
+          console.warn(e);
+        }
+        this.offnotify();
+
+      }
+      else {
+       
+        this.parseData(tempStr);
+      }
     this.bluetoothReceiveData.push(tempStr);
 
     console.log('BluetoothUpdateValue', tempStr);
@@ -339,14 +360,22 @@ export default class InsMeasure extends React.Component {
      }*/
   }
   resetBody = () => {
+    if (!this.state.isSet)
+      this._getLocationAsync();
+    else {
+      // this.setState({ lat: 0 });
+      // this.setState({ long: 0 });
+    }
     this.setState({ light: [0] });
     this.setState({ noise: [0] });
     this.setState({ lable: [0] });
-    this.setState({ lat: 0 });
-    this.setState({ long: 0 });
+    this.setState({ r: [0] });
+    this.setState({ g: [0] });
+    this.setState({ b: [0] });
+
     this.setState({ temp: '---' });
     this.setState({ humid: '---' });
-    this.setState({ addr: '---' });
+    //this.setState({ addr: '---' });
 
   };
   connect(item) {
@@ -374,7 +403,7 @@ export default class InsMeasure extends React.Component {
           data: [item.item],
           isConnected: true
         });
-        BluetoothManager.isConnected=true;
+        BluetoothManager.isConnected = true;
       })
       .catch(err => {
         let newData = [...this.state.data];
@@ -389,7 +418,7 @@ export default class InsMeasure extends React.Component {
       data: [...this.deviceMap.values()],
       isConnected: false
     });
-    BluetoothManager.isConnected=false;
+    BluetoothManager.isConnected = false;
     BluetoothManager.disconnect();
   }
 
@@ -402,6 +431,7 @@ export default class InsMeasure extends React.Component {
       BluetoothManager.scan()
         .then(() => {
           this.setState({ scaning: true });
+          console.log("start scanning");
         }).catch(err => {
 
         })
@@ -477,13 +507,12 @@ export default class InsMeasure extends React.Component {
   }
 
   _getLocationAsync = async () => {
-
-
+    this.setState({ isSet: true });
     let location = await Location.getCurrentPositionAsync({ enableHighAccuracy: true });
-    this.setState({ addr: 'Loading...'});
+    this.setState({ addr: 'Loading...' });
     this.setState({ lat: location['coords']['latitude'] });
     this.setState({ long: location['coords']['longitude'] });
-
+    console.log("omg" + this.state.lat, this.state.long);
     await Geocoder.geocodePosition({ lat: this.state.lat, lng: this.state.long }).then(res => {
 
       var best = "";
@@ -497,13 +526,14 @@ export default class InsMeasure extends React.Component {
       this.setState({ addr: best });
     })
   }
+
   notify = (index) => {
     this.resetBody();
 
     BluetoothManager.startNotification(index)
       .then(() => {
- 
-        BluetoothManager.write(stringToBytes('201'), 1)
+
+        BluetoothManager.write(stringToBytes('ii'), 1)
           .then(() => {
             this.bluetoothReceiveData = [];
             this.setState({
@@ -512,7 +542,7 @@ export default class InsMeasure extends React.Component {
             })
           })
           .catch(err => {
-  
+
             this.alert('Failed to send');
           })
 
@@ -537,6 +567,7 @@ export default class InsMeasure extends React.Component {
       })
   }
   renderItem = (item) => {
+    const { navigation } = this.props;
     let data = item.item;
     return (
       <TouchableOpacity
@@ -579,6 +610,14 @@ export default class InsMeasure extends React.Component {
   }
 
   renderFooter = () => {
+    var myR = Math.round(this.average(this.state.r));
+    var myG = Math.round(this.average(this.state.g));
+    var myB = Math.round(this.average(this.state.b));
+
+
+
+
+
     return (
       <View style={{ marginBottom: 30 }}>
         {this.state.isConnected ?
@@ -590,17 +629,13 @@ export default class InsMeasure extends React.Component {
                 <Text size={16}> Temperature: {this.state.temp}°C Humidity: {this.state.humid}%</Text>
                 <Text size={16}> Peak: {Math.max.apply(Math, this.state.noise)} dB, {Math.max.apply(Math, this.state.light)} lux</Text>
                 <Text size={16}> Average: {Math.round(this.average(this.state.noise))} dB, {Math.round(this.average(this.state.light))}lux</Text>
+                <Text size={16}> R: {myR} G:{myG} B:{myB} </Text>
                 <Text size={16}> Location: {this.state.addr}</Text>
               </Block>
               <Block card width={Dimensions.get('window').width - 30} shadow shadowColor='#000000' style={styles.product}>
-                <View style={{ flexDirection: 'row' }}>
-                  <Text size={16}> Light: </Text>
-                  <Text size={40} style={{ color: 'yellow' }}>•</Text>
-                  <Text size={16}> Noise: </Text>
-                  <Text size={40} style={{ color: 'black' }}>•</Text>
-                </View>
                 <LineChart data={{
                   labels: this.state.lable,
+                  legend: ["Light", "Noise"],
                   datasets: [
                     {
                       data: this.state.light,
@@ -614,7 +649,7 @@ export default class InsMeasure extends React.Component {
                     }
                   ],
                 }}
-                  width={Dimensions.get('window').width - 50}
+                  width={Dimensions.get('window').width * 0.9}
                   height={Dimensions.get('window').height * 0.3}
                   chartConfig={{
                     backgroundColor: '#ffffff',
@@ -624,14 +659,13 @@ export default class InsMeasure extends React.Component {
                     color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
                     style: {
                       borderRadius: 16,
-                      marginRight: 30,
+                      //marginRight: 30,
                       alignSelf: 'center'
                     },
                   }}
                   style={{
                     backgroundColor: '#ffffff',
                     borderRadius: 16,
-                    margin: 10,
                     shadowColor: '#000000',
                     shadowOffset: { width: 0, height: 2 },
                     shadowRadius: 4,

@@ -65,7 +65,7 @@ function addComponent(list) {
             // from react-nativ
             verticalLabelRotation={0}
             // optional, defaults to 1
-
+            fromZero={true}
             chartConfig={{
               backgroundColor: "#000000",
               backgroundGradientFrom: "#000000",

@@ -111,9 +111,9 @@ export default class PollutionMap extends React.Component {
     await this.setStateAsync({
       region: region
     })
-    console.log(region);
-    let b = await this.getData(region.latitude, region.longitude, region.latitudeDelta, region.longitudeDelta);
 
+    let b = await this.getData(region.latitude, region.longitude, region.latitudeDelta, region.longitudeDelta);
+    console.log(b);
     this.genMarker(b);
 
   }
@@ -149,6 +149,16 @@ export default class PollutionMap extends React.Component {
 
   }
   _onMapReady = () => {this.setState({ marginBottom: 44 }); }
+  getCurrentPosition = async (details) => {
+    await this.setStateAsync({ region: { ...this.state.region, latitude: details['geometry']["location"]["lat"] } });
+    await this.setStateAsync({ region: { ...this.state.region, longitude: details['geometry']["location"]["lng"] } });
+       
+        _mapView.animateToRegion(
+        this.state.region,
+          500
+        )
+      
+  }
   render() {
 
     return (
@@ -164,9 +174,8 @@ export default class PollutionMap extends React.Component {
             fetchDetails={true}
             renderDescription={row => row.description} // custom description render
             onPress={(data, details = null) => { // 'details' is provided when fetchDetails = true
-
-              this.setState({ region: { ...this.state.region, latitude: details['geometry']["location"]["lat"] } });
-              this.setState({ region: { ...this.state.region, longitude: details['geometry']["location"]["lng"] } });
+              this.getCurrentPosition(details);
+             
             }}
 
             getDefaultValue={() => ''}
@@ -203,8 +212,10 @@ export default class PollutionMap extends React.Component {
 
 
           <MapView style={[styles.map, { marginTop: this.state.marginBottom }]}
-
-onMapReady={this._onMapReady}
+          ref={mapView => {
+            _mapView = mapView
+          }}
+            onMapReady={this._onMapReady}
             initialRegion={this.state.region}
             onRegionChangeComplete={this.onRegionChange}
             showsUserLocation={true}

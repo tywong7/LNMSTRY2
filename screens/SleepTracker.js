@@ -9,18 +9,18 @@ import { LineChart, PieChart } from 'react-native-chart-kit';
 import { Block, Checkbox, Button } from 'galio-framework';
 const screenWidth = Dimensions.get("window").width;
 const screenHeight = Dimensions.get("window").height;
+import { stringToBytes } from 'convert-string';
 var item = [];
 export default class SleepTracker extends React.Component {
-
 
 
   state = {
     authState: null,
     ele: [],
     ele2: [],
-    data: [1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2,],
-    lightdata: [],
-    noisedata: [],
+    data: [1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4],
+    lightdata: [1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4],
+    noisedata: [1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4],
     temp: [],
     label: [1, 2, 3, 4, 5, 6, 7, 8],
     templight: [],
@@ -53,7 +53,10 @@ export default class SleepTracker extends React.Component {
     if (asyncValue != null) {
       this.state.sleepData = JSON.parse(asyncValue);
     }
-    else await AsyncStorage.setItem('SleepData',JSON.stringify({"good":0,"normal":0,"bad":0,"data":[]}));
+    else {
+      this.state.sleepData ={"good":0,"normal":0,"bad":0,"data":[]}; 
+      await AsyncStorage.setItem('SleepData',JSON.stringify({"good":0,"normal":0,"bad":0,"data":[]}))
+  };
   }
   refreshAuthAsync = async ({ refreshToken }, param) => {
     //console.log(refreshToken);
@@ -71,10 +74,27 @@ export default class SleepTracker extends React.Component {
       )
       return
     }
+    else {
+      if (param == 2)
+        global.BluetoothManager.startNotification(0)
+            .then(() => {
+              global.BluetoothManager.write(stringToBytes('ss'), 1)
+                .then(() => {
+                })
+                .catch(err => {
+             
+                  this.alert('Failed to send');
+                })
+
+            }).catch(err => {
+              console.log("error",err);
+              //this.notif.localNotif("Connection Error: Please check the device connectivity at Instant Measure.")
+            })
+    }
     let authState = await AppAuth.refreshAsync(config, refreshToken);
-    //console.log(181, authState);
+   
     this.getData(authState.accessToken, param);
-    //console.log('refreshAuth', authState);
+
     await this.cacheAuthAsync(authState);
     return authState;
   }
@@ -129,10 +149,12 @@ export default class SleepTracker extends React.Component {
 
 
 
-  signOutAsync = async ({ accessToken }) => {
-    try {
+  signOutAsync = async () => {
+    
+
+   try {
       await AppAuth.revokeAsync(config, {
-        token: accessToken,
+        token: this.state.authState.accessToken,
         isClientIdProvided: true,
       });
       this.setState({ loadLogin: true, ele: [], ele2: [], firstCall: true });
@@ -147,6 +169,7 @@ export default class SleepTracker extends React.Component {
         { cancelable: true }
       )
       //console.log("revoked");
+     this.setState({ authState: null });;
       await AsyncStorage.removeItem(StorageKey);
 
       return null;
@@ -207,9 +230,11 @@ export default class SleepTracker extends React.Component {
     else {
       if (option == 0) {
         if (!this.state.noise) {
+          
           this.setState({ noisedata: [] });
         }
         else {
+          console.log(this.state.tempnoise);
           this.setState({ noisedata: this.state.tempnoise });
         }
         this.setState({ noise: !this.state.noise });
@@ -219,6 +244,7 @@ export default class SleepTracker extends React.Component {
           this.setState({ lightdata: [] });
         }
         else {
+          console.log(this.state.templight);
           this.setState({ lightdata: this.state.templight });
         }
         this.setState({ light: !this.state.light });
@@ -229,6 +255,7 @@ export default class SleepTracker extends React.Component {
           this.setState({ data: [] });
         }
         else {
+          console.log(this.state.temp);
           this.setState({ data: this.state.temp });
         }
         this.setState({ stage: !this.state.stage });
@@ -238,6 +265,15 @@ export default class SleepTracker extends React.Component {
   }
   average = arr => arr.reduce((p, c) => p + c, 0) / (arr.length - 1);
   dataFormatter = (data, noisedata, lightdata, param) => {
+    var sum=0;
+    var intervalList=[];
+    data.forEach(element => {
+      sum=sum+ Math.round(element.seconds/(5*60));
+      intervalList.push(sum);
+    }
+      );
+      console.log(intervalList);
+    
     if (param == 1) {
       var chunk = Math.ceil(data.length / 8);
       var label = [];
@@ -309,7 +345,7 @@ export default class SleepTracker extends React.Component {
         AsyncStorage.setItem("userAvatar", res.user.avatar640);
       }
       else {
-        this.dataFormatter(res['sleep'][0]['levels']['data'], [92, 50, 40, 60, 110, 82, 18, 67, 125, 22, 144, 128, 71, 19, 82, 119, 73, 118, 124, 124, 149, 18], [1368, 575, 2195, 548, 2267, 96, 381, 171, 782, 472, 1605, 492, 1221, 1731, 319, 1851, 1610, 917, 502, 41, 2170, 1472], 1);
+        this.dataFormatter(res['sleep'][0]['levels']['data'], [92, 50, 40, 60, 50, 82, 18, 67, 70, 22, 50, 42, 71], [168, 55, 195, 48, 67, 96, 38, 171, 82, 42, 105, 92, 121], 1);
         var efficiency = res['sleep'][0]['efficiency'];
         var minutesAsleep = res['sleep'][0]['minutesAsleep'];
         var timeInBed = res['sleep'][0]['timeInBed'];
@@ -462,7 +498,8 @@ export default class SleepTracker extends React.Component {
           height={screenHeight * 0.3 * !this.state.firstCall}
           verticalLabelRotation={0}
           // optional, defaults to 1
-
+          fromZero={true}
+          yAxisInterval={1} 
           chartConfig={{
             backgroundColor: "#000000",
             backgroundGradientFrom: "#000000",
@@ -514,8 +551,8 @@ export default class SleepTracker extends React.Component {
           color="#50C7C7"
           onPress={async () => {
 
-            await this.signOutAsync(this.state.authState);
-            this.setState({ authState: null });;
+            await this.signOutAsync();
+           // 
           }}
         >Sign Out</Button>
 
@@ -553,188 +590,3 @@ let StorageKey = '@MyApp:CustomGooleOAuthKey';
 
 
 
-/*import React, { Component } from 'react';
-import { TextInput, StyleSheet, Text, View, TouchableOpacity, Alert } from 'react-native';
-import NotifService from '../components/NotifService';
-import appConfig from '../app.json';
-
-type Props = {};
-export default class SleepTracker extends Component<Props> {
-
-  constructor(props) {
-    super(props);
-    this.state = {
-      senderId: appConfig.senderID
-    };
-
-    this.notif = new NotifService(this.onRegister.bind(this), this.onNotif.bind(this));
-  }
-
-  render() {
-    //const { navigation, horizontal } = this.props;
-    return (
-      <View style={styles.container}>
-        <Text style={styles.title}>Example app react-native-push-notification</Text>
-        <View style={styles.spacer}></View>
-        <TextInput style={styles.textField} value={this.state.registerToken} placeholder="Register token" />
-        <View style={styles.spacer}></View>
-
-        <TouchableOpacity style={styles.button} onPress={() => { this.notif.localNotif() }}><Text>Local Notification (now)</Text></TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => { {this.notif.scheduleNotif(2,0);this.notif.scheduleNotif(8,1);} }}><Text>Schedule Notification in 30s</Text></TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => { this.notif.cancelNotif() }}><Text>Cancel last notification (if any)</Text></TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => { this.notif.cancelAll() }}><Text>Cancel all notifications</Text></TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => { this.notif.checkPermission(this.handlePerm.bind(this)) }}><Text>Check Permission</Text></TouchableOpacity>
-
-        <View style={styles.spacer}></View>
-        <TextInput style={styles.textField} value={this.state.senderId} onChangeText={(e) => {this.setState({ senderId: e })}} placeholder="GCM ID" />
-        <TouchableOpacity style={styles.button} onPress={() => { this.notif.configure(this.onRegister.bind(this), this.onNotif.bind(this), this.state.senderId) }}><Text>Configure Sender ID</Text></TouchableOpacity>
-        {this.state.gcmRegistered && <Text>GCM Configured !</Text>}
-
-        <View style={styles.spacer}></View>
-      </View>
-    );
-  }
-
-  onRegister(token) {
-    Alert.alert("Registered !", JSON.stringify(token));
-    //console.log(token);
-    this.setState({ registerToken: token.token, gcmRegistered: true });
-  }
-
-  onNotif(notif) {
-    //this.props.navigation.navigate('InsMeasure');
-    ///console.log("Notif49",notif);
-    //Alert.alert(notif.title, notif.message);
-  }
-
-  handlePerm(perms) {
-    Alert.alert("Permissions", JSON.stringify(perms));
-  }
-}
-
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  button: {
-    borderWidth: 1,
-    borderColor: "#000000",
-    margin: 5,
-    padding: 5,
-    width: "70%",
-    backgroundColor: "#DDDDDD",
-    borderRadius: 5,
-  },
-  textField: {
-    borderWidth: 1,
-    borderColor: "#AAAAAA",
-    margin: 5,
-    padding: 5,
-    width: "70%"
-  },
-  spacer: {
-    height: 10,
-  },
-  title: {
-    fontWeight: "bold",
-    fontSize: 20,
-    textAlign: "center",
-  }
-});
-import React, { Component } from 'react';
-import { StyleSheet, Text, View, Linking } from 'react-native';
-import { authorize,refresh,revoke } from 'react-native-app-auth';
-import { Button } from 'galio-framework';
-
-const config = {
-  clientId: '22BFMN',
-  clientSecret: 'b33306de5862a2b913471c30aa2c9ffc',
-  redirectUrl: 'lnmstry://sleeptracker', //note: path is required
-  scopes: ['activity', 'sleep','profile','weight','heartrate'],
-  serviceConfiguration: {
-    authorizationEndpoint: 'https://www.fitbit.com/oauth2/authorize',
-    tokenEndpoint: 'https://api.fitbit.com/oauth2/token',
-    revocationEndpoint: 'https://api.fitbit.com/oauth2/revoke'
-  }
-};
-
-
-// Log in to get an authentication token
-//const authState = await authorize(config);
-
-// Refresh token
-//const refreshedState = await refresh(config, {
-  //refreshToken: authState.refreshToken,
-//});
-
-// Revoke token
-//await revoke(config, {
- // tokenToRevoke: refreshedState.refreshToken,
- // includeBasicAuth: true
-//});
-
-export default class App extends Component {
-  state = {
-    hasLoggedInOnce: false,
-    accessToken: "",
-    accessTokenExpirationDate: "",
-    refreshToken: ""
-  };
-
-  authorize = async () => {
-    console.log("start");
-    try {
-      const authState = await authorize(config);
-
-        console.log(authState);
-
-
-    }
-    catch (err){
-      console.log("ohno",err);
-    }
-
-  }
-componentDidMount() {
-
- }
-
- render() {
-  return (
-  <View style={styles.container}>
-    <Text style={styles.welcome}>
-     Welcome to Fitbit Integration
-    </Text>
-    <Button
-          title="Press me"
-          onPress={() => this.authorize()}
-        />
-  </View>
-  );
- }
-}
-
-
-const styles = StyleSheet.create({
-container: {
- flex: 1,
- justifyContent: 'center',
- alignItems: 'center',
- backgroundColor: '#00a8b5',
-},
-welcome: {
- fontSize: 25,
- textAlign: 'center',
- color: '#fff',
- margin: 10,
-},
-});*/
