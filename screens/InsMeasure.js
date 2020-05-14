@@ -158,7 +158,7 @@ export default class InsMeasure extends React.Component {
     var datasplit = input.split(",");
 
     this.state.light.push(parseFloat(datasplit[7]));
-    this.state.noise.push(parseFloat(datasplit[8]));
+    this.state.noise.push(parseFloat(parseFloat(datasplit[8]).toFixed(2)));
     this.state.r.push(parseInt(datasplit[2]));
     this.state.g.push(parseInt(datasplit[3]));
     this.state.b.push(parseInt(datasplit[4]));
@@ -315,8 +315,12 @@ export default class InsMeasure extends React.Component {
     });
     if (tempStr == '"send"') {
       //console.log("hey",tempJson);
-     var outJSON= JSON.parse("["+tempJson.slice(0, -1)+"]");
+     
+     var outJSON= "["+tempJson.slice(0, -1)+"]";
+
+     console.log(JSON.parse(outJSON));
      AsyncStorage.setItem("DailySleep", outJSON);
+   
       isSleep=false;
     }
     else
@@ -533,7 +537,7 @@ export default class InsMeasure extends React.Component {
     BluetoothManager.startNotification(index)
       .then(() => {
 
-        BluetoothManager.write(stringToBytes('ii'), 1)
+        BluetoothManager.write(stringToBytes('i'), 1)
           .then(() => {
             this.bluetoothReceiveData = [];
             this.setState({

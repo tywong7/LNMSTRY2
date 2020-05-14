@@ -203,7 +203,7 @@ export default class BleModule{
                     return BleManager.retrieveServices(id);                    
                 })
                 .then((peripheralInfo)=>{
-                    console.log('Connected peripheralInfo: ', peripheralInfo);                    
+                   // console.log('Connected peripheralInfo: ', peripheralInfo);                    
                     this.peripheralId = peripheralInfo.id;
                     this.getUUID(peripheralInfo);  
                     this.isConnecting = false;   //当前蓝牙连接结束  
@@ -243,7 +243,7 @@ export default class BleModule{
                     resolve();
                 })
                 .catch((error) => {
-                    console.log("nihaommamamama_____")
+                   // console.log("nihaommamamama_____")
                     console.log(this.nofityServiceUUID[index]);
                     console.log(this.nofityCharacteristicUUID[index]);
                     console.log('Notification error:',error);

@@ -18,9 +18,9 @@ export default class SleepTracker extends React.Component {
     authState: null,
     ele: [],
     ele2: [],
-    data: [1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4],
-    lightdata: [1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4],
-    noisedata: [1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4],
+    data: [],
+    lightdata: [],
+    noisedata: [],
     temp: [],
     label: [1, 2, 3, 4, 5, 6, 7, 8],
     templight: [],
@@ -58,10 +58,15 @@ export default class SleepTracker extends React.Component {
       await AsyncStorage.setItem('SleepData',JSON.stringify({"good":0,"normal":0,"bad":0,"data":[]}))
   };
   }
+  wait=(timeout) =>{
+    return new Promise(resolve => {
+        setTimeout(resolve, timeout);
+    });
+}
   refreshAuthAsync = async ({ refreshToken }, param) => {
     //console.log(refreshToken);
     const { navigation } = this.props;
-    if (param == 2 && !global.BluetoothManager.isConnected) {
+   if (param == 2 && !global.BluetoothManager.isConnected) {
       Alert.alert(
         'Failed to sync',
         'Please check your device connectivity.',
@@ -75,10 +80,10 @@ export default class SleepTracker extends React.Component {
       return
     }
     else {
-      if (param == 2)
-        global.BluetoothManager.startNotification(0)
+    if (param == 2)
+        await global.BluetoothManager.startNotification(0)
             .then(() => {
-              global.BluetoothManager.write(stringToBytes('ss'), 1)
+              global.BluetoothManager.write(stringToBytes('s'), 1)
                 .then(() => {
                 })
                 .catch(err => {
@@ -90,10 +95,12 @@ export default class SleepTracker extends React.Component {
               console.log("error",err);
               //this.notif.localNotif("Connection Error: Please check the device connectivity at Instant Measure.")
             })
-    }
+          
+      }
+    await this.wait(4);
     let authState = await AppAuth.refreshAsync(config, refreshToken);
    
-    this.getData(authState.accessToken, param);
+   await this.getData(authState.accessToken, param);
 
     await this.cacheAuthAsync(authState);
     return authState;
@@ -234,7 +241,7 @@ export default class SleepTracker extends React.Component {
           this.setState({ noisedata: [] });
         }
         else {
-          console.log(this.state.tempnoise);
+         // console.log(this.state.tempnoise);
           this.setState({ noisedata: this.state.tempnoise });
         }
         this.setState({ noise: !this.state.noise });
@@ -244,7 +251,7 @@ export default class SleepTracker extends React.Component {
           this.setState({ lightdata: [] });
         }
         else {
-          console.log(this.state.templight);
+        //  console.log(this.state.templight);
           this.setState({ lightdata: this.state.templight });
         }
         this.setState({ light: !this.state.light });
@@ -255,7 +262,7 @@ export default class SleepTracker extends React.Component {
           this.setState({ data: [] });
         }
         else {
-          console.log(this.state.temp);
+        //  console.log(this.state.temp);
           this.setState({ data: this.state.temp });
         }
         this.setState({ stage: !this.state.stage });
@@ -264,17 +271,41 @@ export default class SleepTracker extends React.Component {
     }
   }
   average = arr => arr.reduce((p, c) => p + c, 0) / (arr.length - 1);
-  dataFormatter = (data, noisedata, lightdata, param) => {
+  dataFormatter = (data,param) => {
     var sum=0;
     var intervalList=[];
+    var noisedata1=[];
+    var lightdata1=[];
     data.forEach(element => {
       sum=sum+ Math.round(element.seconds/(5*60));
       intervalList.push(sum);
     }
       );
-      console.log(intervalList);
-    
-    if (param == 1) {
+
+      try{
+        AsyncStorage.getItem('DailySleep').then((token) => {
+          var sleepData=JSON.parse(token);
+          var timestamp=new Date(data[0].dateTime).getTime()/1000;
+          var firstEle=0;
+          //console.log("mystamp",timestamp);
+          //console.log(sleepData);
+          for (i=0;i<sleepData.length;i++){
+            if (sleepData[i][0]>=timestamp-10 &&sleepData[i][0]<=timestamp +10){
+              
+              firstEle=i;
+              if (sleepData[i][0]==timestamp)
+                break;
+          
+            }
+          }
+         intervalList.forEach(x=>{
+          lightdata1.push(sleepData[firstEle+x][1]);
+          noisedata1.push(sleepData[firstEle+x][2]);
+           
+         })
+        
+          if (param == 1) {
+            var outString="Max: " + Math.max.apply(Math, lightdata1) + "lux " + Math.max.apply(Math, noisedata1) + "dB    Avg: " + Math.round(this.average(lightdata1)) + "lux " + Math.round(this.average(noisedata1)) + "dB"
       var chunk = Math.ceil(data.length / 8);
       var label = [];
       var dataOut = [];
@@ -293,7 +324,7 @@ export default class SleepTracker extends React.Component {
         else if (element['level'] == 'deep')
           dataOut.push(1);
       });
-      noisedata.forEach(element => {
+      noisedata1.forEach(element => {
         if (element >= 100)
           noiseOut.push(4);
         else if (element >= 80)
@@ -302,7 +333,7 @@ export default class SleepTracker extends React.Component {
           noiseOut.push(2);
         else noiseOut.push(1);
       });
-      lightdata.forEach(element => {
+      lightdata1.forEach(element => {
         if (element >= 1750)
           lightOut.push(4);
         else if (element >= 1500)
@@ -313,12 +344,27 @@ export default class SleepTracker extends React.Component {
       });
 
     }
-    this.setState({ outString: "Max: " + Math.max.apply(Math, lightdata) + "lux " + Math.max.apply(Math, noisedata) + "dB    Avg: " + Math.round(this.average(lightdata)) + "lux " + Math.round(this.average(noisedata)) + "dB" })
+   
+    
+    this.setState({outString: outString, label: label, data: dataOut, temp: dataOut, lightdata: lightOut, templight: lightOut, noisedata: noiseOut, tempnoise: noiseOut })
+    this.state.sleepData['data'][this.state.sleepData['data'].length-1]['LightValue']=lightOut;
+    this.state.sleepData['data'][this.state.sleepData['data'].length-1]['NoiseValue']=noiseOut;
+    this.state.sleepData['data'][this.state.sleepData['data'].length-1]['SleepValue']=dataOut;
+    this.state.sleepData['data'][this.state.sleepData['data'].length-1]['SleepValue']=dataOut;
+    this.state.sleepData['data'][this.state.sleepData['data'].length-1]['maxavg']=outString;
+    this.state.sleepData['data'][this.state.sleepData['data'].length-1]["label"]=label;
+     AsyncStorage.setItem("SleepData", JSON.stringify(this.state.sleepData));
+        })
+    }
+    catch{
+      console.log("no sleep Data")
+    };
 
-    this.setState({ label: label, data: dataOut, temp: dataOut, lightdata: lightOut, templight: lightOut, noisedata: noiseOut, tempnoise: noiseOut })
+      
+   
   }
-  getData = (access_token, param) => {
-    console.log(param);
+  getData = async (access_token, param) => {
+    //console.log(param);
     if (param == 1) {
       var api = "https://api.fitbit.com/1/user/-/profile.json";
     }
@@ -337,15 +383,16 @@ export default class SleepTracker extends React.Component {
       }
     ).then((res) => {
       return res.json()
-    }).then((res) => {
+    }).then(async (res) => {
       //console.log(res);
+      
       if (param == 1) {
         AsyncStorage.setItem("userName", res.user.fullName);
         AsyncStorage.setItem("userGender", res.user.gender);
         AsyncStorage.setItem("userAvatar", res.user.avatar640);
       }
       else {
-        this.dataFormatter(res['sleep'][0]['levels']['data'], [92, 50, 40, 60, 50, 82, 18, 67, 70, 22, 50, 42, 71], [168, 55, 195, 48, 67, 96, 38, 171, 82, 42, 105, 92, 121], 1);
+        this.dataFormatter(res['sleep'][0]['levels']['data'],1);
         var efficiency = res['sleep'][0]['efficiency'];
         var minutesAsleep = res['sleep'][0]['minutesAsleep'];
         var timeInBed = res['sleep'][0]['timeInBed'];
@@ -355,13 +402,29 @@ export default class SleepTracker extends React.Component {
         var wake = res['sleep'][0]['levels']['summary']['wake']['minutes'];
         var temp = res['sleep'][0]['startTime'].substring(0, 16).replace('T', ' ') + '-' + res['sleep'][0]['endTime'].substring(11, 16);
         var quality = this.calQuality(minutesAsleep, efficiency, deep, rem, timeInBed);
+        this.state.sleepData['data'].push(
+          {
+            "Date": temp.substring(0, 10).replace(/-/g, '/')
+            , "Quality": quality.substring(0, quality.indexOf(';')),
+            "label": this.state.label,
+            "DetailQ": quality.substring(quality.indexOf(';')),
+            "Hour": temp.substring(11),
+            "AcutalSleep": this.timeConvert(minutesAsleep),
+            "maxavg": this.state.outString,
+            "LightValue": this.state.templight,
+            "NoiseValue": this.state.tempnoise,
+            "SleepValue": this.state.temp,
+            "Efficiency": efficiency,
+            "ratio":[deep,light,rem,wake],
+          }
+        )
 
+       
         this.setState({
           ele2: [
             <Text style={{ fontSize: 17, fontWeight: 'bold', marginLeft: 3 }}>Sleep Summary: {temp}  </Text>,
             <Block card width={screenWidth * 0.95} style={{ alignSelf: 'flex-start', marginLeft: 3 }}>
               <Text>Time Asleep: {this.timeConvert(minutesAsleep)}       Efficiency: {efficiency}</Text>
-              <Text>{this.state.outString}</Text>
               <Text>Quality: {quality}</Text>
             </Block>
           ]
@@ -434,24 +497,7 @@ export default class SleepTracker extends React.Component {
 
               />]
         });
-        this.state.sleepData['data'].push(
-          {
-            "Date": temp.substring(0, 10).replace(/-/g, '/')
-            , "Quality": quality.substring(0, quality.indexOf(';')),
-            "label": this.state.label,
-            "DetailQ": quality.substring(quality.indexOf(';')),
-            "Hour": temp.substring(11),
-            "AcutalSleep": this.timeConvert(minutesAsleep),
-            "maxavg": this.state.outString,
-            "LightValue": this.state.templight,
-            "NoiseValue": this.state.tempnoise,
-            "SleepValue": this.state.temp,
-            "Efficiency": efficiency,
-            "ratio":[deep,light,rem,wake],
-          }
-        )
-       // console.log(JSON.stringify(this.state.sleepData));
-        AsyncStorage.setItem("SleepData", JSON.stringify(this.state.sleepData));
+
       }
 
 
@@ -464,7 +510,7 @@ export default class SleepTracker extends React.Component {
       <View style={styles.container}>
 
         {this.state.ele2}
-
+        <Text>{this.state.outString}</Text>
         <LineChart
           bezier
           withDots={false}
@@ -495,7 +541,7 @@ export default class SleepTracker extends React.Component {
             ]
           }}
           // from react-native
-          height={screenHeight * 0.3 * !this.state.firstCall}
+          height={screenHeight * 0.28* !this.state.firstCall}
           verticalLabelRotation={0}
           // optional, defaults to 1
           fromZero={true}

@@ -13,7 +13,7 @@ async function asyncSetProfile(){
   AsyncStorage.getItem('SleepData').then((token) => {
     if (token) {
       let data=JSON.parse(token);
-      console.log(token);
+      //console.log(token);
       var total =data['good']+data['normal']+data['bad'];
       if (total!=0)
      profile.rating=((data['good']*5.0+data['normal']*3.0+data['bad']*1.0)/total).toFixed(1);

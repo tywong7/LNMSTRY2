@@ -115,7 +115,7 @@ export default class Home extends React.Component {
             if (global.BluetoothManager.isConnected)
             global.BluetoothManager.startNotification(0)
             .then(() => {
-              global.BluetoothManager.write(stringToBytes('aa'), 1)
+              global.BluetoothManager.write(stringToBytes('a'), 1)
                 .then(() => {
                 })
                 .catch(err => {

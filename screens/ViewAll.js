@@ -140,6 +140,7 @@ pushArray= (index, list) => {
         withShadow={false}
         withInnerLines={false}
         withOuterLines={false}
+        fromZero={true}
         width={Dimensions.get('window').width -30}
         height={Dimensions.get('window').height*0.32}
         data={{
@@ -352,9 +353,9 @@ pushArray= (index, list) => {
   };
   test1=()=>{
 
-    console.log(this.state.good);
-    console.log(this.state.normal);
-    console.log(this.state.bad);
+    ////console.log(this.state.good);
+    //console.log(this.state.normal);
+    //console.log(this.state.bad);
   }
   setStateAsync(state) {
     return new Promise((resolve) => {
